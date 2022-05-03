@@ -1,0 +1,14 @@
+<div class="container">
+    <div class="row text-center" *ngFor="let threeCourts of courtsToDisplay; index as i">
+        <h3 *ngIf="i === 0">Welcome to Tennis Scheduler</h3>
+        <div class="card mb-3 col-lg-4 col-md-12 mt-4 px-1" *ngFor="let court of threeCourts">
+            <img src="https://i.imgur.com/IfoRpDP.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{court['courtName']}}</h5>
+              <!-- <p class="card-text">{{course['opis']}}</p> ,[queryParams]="{ court:  court['id']}" -->
+              <!-- <button type="button" [routerLink]="['/tennis-scheduler/overview']" class="btn btn-link">Visit court</button> -->
+              <button type="button" (click)="goToCourtOverview(court['id'])" class="btn btn-link">Visit court</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,115 @@
+<div class="container">
+    <div class="row"> 
+      <div class="col-sm">
+        <div class="card h-100">
+          <img src="https://picsum.photos/id/944/900/500" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Plavi teren</h5>
+            <div class="card-header">
+              <small class="text-muted">Dimenzije</small>
+            </div>
+            <p class="card-text">200x200</p>
+            <div class="card-header">
+              <small class="text-muted">Vrsta</small>
+            </div>
+            <p class="card-text">Šljaka</p>
+            <div class="card-header">
+              <small class="text-muted">Nadkriven</small>
+            </div>
+            <p class="card-text">Da</p>
+          </div>
+          
+        </div>
+
+            <div class="container">
+                <div class="row">
+                  <div class="col-sm">
+                    <p>Upcoming reservations</p>
+
+                    <table class="table table-striped">
+                      <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Start</th>
+                        <th scope="col">End</th>
+                        
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let timeslot of timeslots; index as i">
+                        <th scope="row">{{ i + 1 }}</th>
+                        <td>{{ timeslot.start | datePipe}}</td>
+                        <td>{{ timeslot.end   | datePipe}}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+            </div>
+
+      </div>
+
+      <div class="col-sm">
+       
+            <div>
+                <label for="start">Select start:</label>
+                <input type="datetime-local" [ngModel]="startDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedStart($event)" id="start" name="start">            
+            </div>
+           
+            <div style="margin-top: 20px;">
+                <label for="end">Select end:</label>
+                <input type="datetime-local" [ngModel]="endDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedEnd($event)" id="end" name="end">
+            </div>
+
+            <div style="margin-top: 20px;">
+              <button (click)="addTimeslot()">Add timeslot</button>
+            </div>
+            
+            
+            
+
+            <p style="margin-top: 300px;">Please select payment type:</p>
+            <div class="btn-group" role="group" aria-label="Radio Buttons with Bootstrap 5">
+              <input type="radio" [formControl]="paymentForm" [value]="1"  class="btn-check" id="btnradio1" autocomplete="off">
+              <label class="btn btn-outline-primary" for="btnradio1">Cash</label>
+            
+              <input type="radio" [formControl]="paymentForm" [value]="2"  class="btn-check" id="btnradio2" autocomplete="off">
+              <label class="btn btn-outline-primary" for="btnradio2">Card</label>
+              
+            </div>
+            
+            <pre>Value: {{ paymentForm.value }}</pre>
+            
+            
+          
+    
+
+            
+          
+      </div>
+      <div class="col-sm">
+        <p>Selecte timeslots reservations for Court 1</p>
+
+         <table class="table table-striped">
+           <thead>
+           <tr>
+             <th scope="col">#</th>
+             <th scope="col">Start</th>
+             <th scope="col">End</th>
+             <th scope="col">Remove</th>
+           </tr>
+           </thead>
+           <tbody>
+           <tr *ngFor="let timeslot of timeslots; index as i">
+             <th scope="row">{{ i + 1 }}</th>
+             <!-- {{ timeslot.start | number }} -->
+             <td>{{ timeslot.start | datePipe}}</td>
+             <td>{{ timeslot.end  | datePipe}}</td>
+             <td><button (click)="removeTimeslote(i)" >Remove</button></td>
+           </tr>
+           </tbody>
+         </table>
+      </div>
+    </div>
+  </div>
