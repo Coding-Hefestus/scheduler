@@ -80,6 +80,48 @@
             </div>
             
             <pre>Value: {{ paymentForm.value }}</pre>
+
+
+            <form [formGroup]="stripeForm" style="margin-top: 30px;">
+               <!-- <mat-form-field class="example-full-width" appearance="fill">
+                 <input matInput placeholder="name" formControlName="name" />
+               </mat-form-field>
+               <mat-form-field class="example-full-width" appearance="fill">
+                 <input  matInput placeholder="amount" type="text" formControlName="amount" />
+               </mat-form-field> -->
+              <div class="form-group">
+                <label for="name">First and last name</label>
+                <input type="name" class="form-control"  formControlName="name" id="name" aria-describedby="nameHelp" placeholder="Enter your first and last name">
+                <div *ngIf="stripeForm.dirty">
+                  <small class="text-danger" *ngIf="stripeForm.get('name')!.hasError('required')">
+                      This field is required.
+                  </small>
+                  <small class="text-danger" *ngIf="stripeForm.get('name')!.hasError('minlength')">
+                    The minimum length for this field is {{stripeForm.get('name').errors['minlength'].requiredLength}} characters.
+                  </small>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control"  formControlName="email" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+              </div>
+              <div style="margin-bottom: 5px;" class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" formControlName="amount"  [value]="amount"  class="form-control" id="amount" [disabled]="formDis" required>
+                <small class="text-danger" *ngIf="stripeForm.get('amount').hasError('required')">
+                  This field is required.
+                </small>
+                <small class="text-danger" *ngIf="stripeForm.get('amount').hasError('min') ">
+                  Price must be 0 or positive number.
+                </small>
+              </div>
+               <ng-container *ngIf="elementsOptions?.clientSecret as clientSecret">
+                 <ngx-stripe-payment [clientSecret]="clientSecret">
+                 </ngx-stripe-payment>
+               </ng-container>
+               <button id="paymentButton" (click)="pay()">PAY</button> 
+             </form>
             
             
           
@@ -103,7 +145,7 @@
            <tbody>
            <tr *ngFor="let timeslot of timeslots; index as i">
              <th scope="row">{{ i + 1 }}</th>
-             <!-- {{ timeslot.start | number }} -->
+             
              <td>{{ timeslot.start | datePipe}}</td>
              <td>{{ timeslot.end  | datePipe}}</td>
              <td><button (click)="removeTimeslote(i)" >Remove</button></td>
