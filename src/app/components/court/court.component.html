@@ -20,7 +20,6 @@
           </div>
           
         </div>
-
             <div class="container">
                 <div class="row">
                   <div class="col-sm">
@@ -45,18 +44,15 @@
                     </table>
                   </div>
                 </div>
-                
             </div>
 
       </div>
 
       <div class="col-sm">
-       
             <div>
                 <label for="start">Select start:</label>
                 <input type="datetime-local" [ngModel]="startDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedStart($event)" id="start" name="start">            
             </div>
-           
             <div style="margin-top: 20px;">
                 <label for="end">Select end:</label>
                 <input type="datetime-local" [ngModel]="endDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedEnd($event)" id="end" name="end">
@@ -65,30 +61,23 @@
             <div style="margin-top: 20px;">
               <button (click)="addTimeslot()">Add timeslot</button>
             </div>
-            
-            
-            
 
             <p style="margin-top: 300px;">Please select payment type:</p>
-            <div class="btn-group" role="group" aria-label="Radio Buttons with Bootstrap 5">
-              <input type="radio" [formControl]="paymentForm" [value]="1"  class="btn-check" id="btnradio1" autocomplete="off">
-              <label class="btn btn-outline-primary" for="btnradio1">Cash</label>
-            
-              <input type="radio" [formControl]="paymentForm" [value]="2"  class="btn-check" id="btnradio2" autocomplete="off">
-              <label class="btn btn-outline-primary" for="btnradio2">Card</label>
-              
-            </div>
-            
-            <pre>Value: {{ paymentForm.value }}</pre>
+            <form [formGroup]="paymentTypeForm">
+              <div class="btn-group" role="group" ngbRadioGroup name="radioBasic" formControlName="type">
+                <label ngbButtonLabel class="btn-primary">
+                  <input ngbButton type="radio" class="btn-check" [value]="1" (click)="changePaymentTypeToCash()" > Cash
+                </label>
+                <label ngbButtonLabel class="btn-primary">
+                  <input ngbButton type="radio" class="btn-check" [value]="2" (click)="changePaymentTypeToCard()"> Card
+                </label>
+              </div>
+            </form>
+            <hr>
+            <pre>{{paymentTypeForm.value['type']}}</pre>
 
 
             <form [formGroup]="stripeForm" style="margin-top: 30px;">
-               <!-- <mat-form-field class="example-full-width" appearance="fill">
-                 <input matInput placeholder="name" formControlName="name" />
-               </mat-form-field>
-               <mat-form-field class="example-full-width" appearance="fill">
-                 <input  matInput placeholder="amount" type="text" formControlName="amount" />
-               </mat-form-field> -->
               <div class="form-group">
                 <label for="name">First and last name</label>
                 <input type="name" class="form-control"  formControlName="name" id="name" aria-describedby="nameHelp" placeholder="Enter your first and last name">
@@ -105,10 +94,15 @@
                 <label for="email">Email address</label>
                 <input type="email" class="form-control"  formControlName="email" id="email" aria-describedby="emailHelp" placeholder="Enter email">
                 <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                <div *ngIf="stripeForm.dirty">
+                  <small class="text-danger" *ngIf="stripeForm.get('email')!.hasError('required')">
+                      This field is required.
+                  </small>
+                </div>
               </div>
               <div style="margin-bottom: 5px;" class="form-group">
                 <label for="amount">Amount</label>
-                <input type="number" formControlName="amount"  [value]="amount"  class="form-control" id="amount" [disabled]="formDis" required>
+                <input type="number" formControlName="amount"  [value]="amount"  class="form-control" id="amount" [disabled]="true" required>
                 <small class="text-danger" *ngIf="stripeForm.get('amount').hasError('required')">
                   This field is required.
                 </small>
@@ -120,19 +114,13 @@
                  <ngx-stripe-payment [clientSecret]="clientSecret">
                  </ngx-stripe-payment>
                </ng-container>
-               <button id="paymentButton" (click)="pay()">PAY</button> 
+               <div style="margin-bottom: 30px;"></div>
+               <button  id="paymentButton" (click)="pay()">PAY</button> 
              </form>
-            
-            
-          
-    
-
-            
-          
       </div>
+
       <div class="col-sm">
         <p>Selecte timeslots reservations for Court 1</p>
-
          <table class="table table-striped">
            <thead>
            <tr>
