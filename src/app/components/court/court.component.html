@@ -74,7 +74,7 @@
               </div>
             </form>
             <hr>
-            <pre>{{paymentTypeForm.value['type']}}</pre>
+           
 
 
             <form [formGroup]="stripeForm" style="margin-top: 30px;">
@@ -102,7 +102,7 @@
               </div>
               <div style="margin-bottom: 5px;" class="form-group">
                 <label for="amount">Amount [EUR]</label>
-                <input type="number" formControlName="amount"  [value]="amount"  class="form-control" id="amount" [disabled]="true" required>
+                <input type="number" formControlName="amount"   class="form-control" id="amount" [disabled]="true" required>
                 <small class="text-danger" *ngIf="stripeForm.get('amount').hasError('required')">
                   This field is required.
                 </small>
@@ -110,12 +110,28 @@
                   Price must be 0 or positive number.
                 </small>
               </div>
-               <ng-container *ngIf="elementsOptions?.clientSecret as clientSecret">
-                 <ngx-stripe-payment [clientSecret]="clientSecret">
-                 </ngx-stripe-payment>
-               </ng-container>
-               <div style="margin-bottom: 30px;"></div>
-               <button [disabled]="paymentType !== 'card' || timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="pay()">Make reservations and pay</button> 
+
+
+              
+              <ng-container *ngIf="paymentType == 'cash'">
+                <button id="paymentButton" [disabled]="timeslots.length <= 0 || stripeForm.invalid" id="paymentButton" (click)="payByCash()">Book reservations</button>
+              </ng-container>
+
+              <ng-container *ngIf="paymentType == 'card'">
+
+                  <div style="margin-bottom: 30px;"></div>
+                  <ng-container *ngIf="!paymentIntentExists">
+                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid" id="paymentButton" (click)="fetchPaymentIntent()">Procede to checkout</button> 
+                  </ng-container>
+
+                  <ng-container *ngIf="elementsOptions?.clientSecret as clientSecret">
+                    <ngx-stripe-payment [clientSecret]="clientSecret">
+                    </ngx-stripe-payment>
+                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="pay()">Book reservations and pay</button>
+                  </ng-container>
+
+              </ng-container>
+              
              </form>
       </div>
 
