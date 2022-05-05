@@ -101,7 +101,7 @@
                 </div>
               </div>
               <div style="margin-bottom: 5px;" class="form-group">
-                <label for="amount">Amount</label>
+                <label for="amount">Amount [EUR]</label>
                 <input type="number" formControlName="amount"  [value]="amount"  class="form-control" id="amount" [disabled]="true" required>
                 <small class="text-danger" *ngIf="stripeForm.get('amount').hasError('required')">
                   This field is required.
@@ -115,7 +115,7 @@
                  </ngx-stripe-payment>
                </ng-container>
                <div style="margin-bottom: 30px;"></div>
-               <button  id="paymentButton" (click)="pay()">PAY</button> 
+               <button [disabled]="paymentType !== 'card' || timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="pay()">Make reservations and pay</button> 
              </form>
       </div>
 

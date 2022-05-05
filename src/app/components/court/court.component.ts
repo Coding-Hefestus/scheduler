@@ -33,10 +33,11 @@ export class CourtComponent implements OnInit {
   public loggedInUser = "Pera Peric";
   public loggedInUserEmail = "pera@gmail.com";
 
-  //dummy amount for pricing
-  public amount = 12;
+  //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10;
+  public amount = 5;
 
   //helper variables
+  public paymentType: string;
   public startDate: Date;
   public endDate: Date;
 
@@ -58,6 +59,10 @@ export class CourtComponent implements OnInit {
     this.paymentTypeForm = this.fb.group({
       'type': 1
     });
+    
+    //default payment type
+    this.paymentType = 'card';
+
 
     //initialize form for user's data
     this.stripeForm = this.fb.group({
@@ -76,11 +81,11 @@ export class CourtComponent implements OnInit {
   }
 
   changePaymentTypeToCash(){
-     console.log("menjam u cash")
+    this.paymentType = 'cash';
   }
 
   changePaymentTypeToCard(){
-    console.log("menjam u card")
+    this.paymentType = 'card';
   }
 
   private createPaymentIntent(amount: number): Observable<any> {
@@ -97,7 +102,8 @@ export class CourtComponent implements OnInit {
         confirmParams: {
           payment_method_data: {
             billing_details: {
-              name: this.stripeForm.get('name')!.value
+              name: this.stripeForm.get('name')!.value,
+              email: this.stripeForm.get('email')!.value
             }
           }
         },
@@ -121,11 +127,18 @@ export class CourtComponent implements OnInit {
   }
 
   public removeTimeslote(index : number){
+    if (this.timeslots.length == 0) return;
     this.timeslots.splice(index, 1);
+    if (this.timeslots.length == 1) this.amount = 5
+    else if (this.timeslots.length > 1) this.amount = this.amount - 10;
+    else if (this.timeslots.length == 0) this.amount = 0;
   }
 
   public addTimeslot(){
     this.timeslots.push(Builder(Timeslot).start(this.startDate.getTime().toString()).end(this.endDate.getTime().toString()).build())
+    if (this.timeslots.length == 1) this.amount = 5
+    else if (this.timeslots.length > 1) this.amount = this.amount + 10;
+
   }
 
   public dateChangedStart(eventDate: string): Date | null {
