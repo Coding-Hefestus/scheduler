@@ -112,7 +112,7 @@
               </div>
 
 
-              
+              <div style="margin-bottom: 30px;"></div>
               <ng-container *ngIf="paymentType == 'cash'">
                 <button id="paymentButton" [disabled]="timeslots.length <= 0 || stripeForm.invalid" id="paymentButton" (click)="payByCash()">Book reservations</button>
               </ng-container>
@@ -121,13 +121,28 @@
 
                   <div style="margin-bottom: 30px;"></div>
                   <ng-container *ngIf="!paymentIntentExists">
-                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid" id="paymentButton" (click)="fetchPaymentIntent()">Procede to checkout</button> 
+                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid" id="paymentButton" (click)="fetchPaymentIntent()">Procede to checkout
+                      <div class="spinner hidden" id="spinner"></div>
+                    </button> 
                   </ng-container>
 
+                  
                   <ng-container *ngIf="elementsOptions?.clientSecret as clientSecret">
                     <ngx-stripe-payment [clientSecret]="clientSecret">
                     </ngx-stripe-payment>
-                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="pay()">Book reservations and pay</button>
+                
+                    <div style="margin-bottom: 30px;"></div>
+                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="payByCard()">Book reservations and pay
+                      <div class="spinner hidden" id="spinner"></div>
+                    </button>
+                  </ng-container>
+
+                  <ng-container *ngIf="errorButton">
+                    <button id="errorButton" (click)="reloadPage()">{{outcomeText}}</button>
+                  </ng-container>
+
+                  <ng-container *ngIf="successButton">
+                    <button id="successButton" (click)="goToHomePage()">{{outcomeText}}</button>
                   </ng-container>
 
               </ng-container>

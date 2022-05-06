@@ -11,6 +11,7 @@ import {loadStripe} from '@stripe/stripe-js';
 import { ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {  StripePaymentElementComponent } from 'ngx-stripe';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -39,11 +40,14 @@ export class CourtComponent implements OnInit {
   public startDate: Date;
   public endDate: Date;
   public paymentIntentExists: boolean;
+  public successButton: boolean;
+  public errorButton: boolean;
+  public outcomeText: string;
 
   //timeslots repository
   public timeslots: Timeslot[] = []; //[Builder(Timeslot).start("1650914076517").end("1650914076517").build()];
 
-  constructor(private fb: FormBuilder, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService) { 
+  constructor(private fb: FormBuilder, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService) { 
 
 
   }
@@ -53,9 +57,7 @@ export class CourtComponent implements OnInit {
     loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
     //initialize paymentTypeForm [cash or card]
-    this.paymentTypeForm = this.fb.group({
-      'type': 1
-    });
+    this.paymentTypeForm = this.fb.group({'type': 1});
     
     //default payment type
     this.paymentType = 'cash';
@@ -68,6 +70,20 @@ export class CourtComponent implements OnInit {
     });
    
     
+  }
+
+  
+
+  // Show a spinner on payment submission
+  public setLoading(isLoading) {
+    if (isLoading) {
+      // Disable the button and show a spinner
+      (document.querySelector("#paymentButton")  as HTMLButtonElement).disabled = true;
+      document.querySelector("#spinner").classList.remove("hidden");
+    } else {
+      (document.querySelector("#paymentButton")  as HTMLButtonElement).disabled = false;
+      document.querySelector("#spinner").classList.add("hidden");
+    }
   }
 
   changePaymentTypeToCash(){
@@ -89,14 +105,9 @@ export class CourtComponent implements OnInit {
     this.resetPaymentIntent()
     if (this.timeslots.length == 0) return;
     this.timeslots.splice(index, 1);
-    //this.stripeForm.controls['amount'].value
-    //this.stripeForm.controls['amount'].setValue(5)
     if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5)
-    //this.amount = 5
     else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value - 10)
-    //this.amount = this.amount - 10;
     else if (this.timeslots.length == 0) this.stripeForm.controls['amount'].setValue(0)
-    //this.amount = 0;
   }
 
   public addTimeslot(){
@@ -118,20 +129,17 @@ export class CourtComponent implements OnInit {
   }
 
   public fetchPaymentIntent(){
-    //create payment intent if there is at least single reservation..
-
-    //console.log(this.stripeForm.get('amount')!.value)
+    this.setLoading(true);
     this.createPaymentIntent(this.stripeForm.get('amount')!.value)
     .subscribe(clientSecretResponse => {
       console.log("payment intent: " + clientSecretResponse.clientSecret)
       this.elementsOptions.clientSecret = clientSecretResponse.clientSecret;
       this.paymentIntentExists = true;
+      this.setLoading(false);
     });
   }
 
-  public payByCash(){
-    console.log("paying by cash...")
-  }
+ 
 
   public dateChangedStart(eventDate: string): Date | null {
     this.startDate = new Date(eventDate.toString())
@@ -143,8 +151,15 @@ export class CourtComponent implements OnInit {
     return !!eventDate ? new Date(eventDate) : null;
   }
 
-  public pay(){
+  public payByCash(){
+    console.log("paying by cash...")
+
+    
+  }
+
+  public payByCard(){
     if (this.stripeForm.valid) {
+      this.setLoading(true);
       this.stripeService.confirmPayment({
         elements: this.paymentElement.elements,
         confirmParams: {
@@ -157,15 +172,29 @@ export class CourtComponent implements OnInit {
         },
         redirect: 'if_required'
       }).subscribe(result => {
+        this.setLoading(false);
         console.log('Result', result);
         if (result.error) {
-          // Show error to your customer (e.g., insufficient funds)
-          alert({ success: false, error: result.error.message });
+
+          if (result.error.type !== 'validation_error'){
+            // Show error to your customer (e.g., insufficient funds, card was declined)
+            this.outcomeText = 'Payment failed! Reason: ' + result.error.message + ' Click here to reload page.'
+            this.errorButton = true; this.successButton = false;
+            //this.resetPaymentIntent();
+            this.paymentIntentExists = true;
+            this.elementsOptions = {locale: 'en'}
+           
+          }
+        
+
         } else {
           // The payment has been processed!
           if (result.paymentIntent!.status === 'succeeded') {
-            // Show a success message to your customer
-            alert({ success: true });
+            //show a success message to your customer
+            this.outcomeText = 'You have successfully paid your order! Click here to go to home page.'
+            this.errorButton = false; this.successButton = true;
+            this.paymentIntentExists = true;
+            this.elementsOptions = {locale: 'en'}
           }
         }
       });
@@ -174,6 +203,12 @@ export class CourtComponent implements OnInit {
     }
   }
 
-  
+  public reloadPage(){
+    window.location.reload();
+  }
+
+  public goToHomePage(){
+    this.router.navigate(["/tennis-scheduler"]);
+  }
 
 }
