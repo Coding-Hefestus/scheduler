@@ -2,7 +2,7 @@ import { Reservations } from "./reservations"
 
 export class Court{
     id!: Number
-    courtName!: String
-    image!: string
+    name!: String
+    url!: string
     reservations!: Reservations[]
 }

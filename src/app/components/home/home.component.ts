@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Builder } from 'builder-pattern';
 import { Court } from 'src/app/model/court';
+import { CourtService } from 'src/app/services/court.service';
 
 @Component({
   selector: 'app-home',
@@ -12,14 +13,20 @@ export class HomeComponent implements OnInit {
 
   public courtsToDisplay: Court[][] = [];
   public courts: Court[] = [];
-  constructor( private _router: Router,
-    private _activatedRoute: ActivatedRoute) {
-    this.courts = [Builder(Court).id(1).courtName("Blue court").image("https://picsum.photos/id/944/900/500`").build(), Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build(),
-    Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build() ]
-    this.courtsToDisplay = this.chunkArray(this.courts, 3);
+  constructor( private _router: Router, private _activatedRoute: ActivatedRoute, private courtService : CourtService) {
+    // this.courts = [Builder(Court).id(1).courtName("Blue court").image("https://picsum.photos/id/944/900/500`").build(), Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build(),
+    // Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build() ]
+    // this.courtsToDisplay = this.chunkArray(this.courts, 3);
+
+
    }
 
   ngOnInit(): void {
+    this.courtService.fetchCourtInfo().subscribe(data => {
+      this.courts = data;
+      this.courtsToDisplay = this.chunkArray(this.courts, 3);
+    });
+
   }
 
   public goToCourtOverview(courtId : Number){
