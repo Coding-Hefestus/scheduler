@@ -1,5 +1,5 @@
 export class Reservations{
-    start!: Number
-    end!: Number
-    
+    id!: number
+    start!: string
+    end!: string
 }

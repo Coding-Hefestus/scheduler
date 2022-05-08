@@ -1,26 +1,26 @@
 <div class="container">
     <div class="row"> 
-      <div class="col-sm">
+      <div class="col-sm col-lg">
         <div class="card h-100">
-          <img src="https://picsum.photos/id/944/900/500" class="card-img-top" alt="...">
+          <img *ngIf="court != null && court.url != null" [src]="court['url']" class="card-img-top" alt="...">
           <div class="card-body">
-            <h5 class="card-title">Plavi teren</h5>
+            <h5 *ngIf="court != null && court.name != null" class="card-title">{{court['name']}}</h5>
             <div class="card-header">
               <small class="text-muted">Dimenzije</small>
             </div>
-            <p class="card-text">200x200</p>
+            <p *ngIf="court != null && court.dimension != null" class="card-text">{{court['dimension']}}</p>
             <div class="card-header">
               <small class="text-muted">Vrsta</small>
             </div>
-            <p class="card-text">Šljaka</p>
+            <p *ngIf="court != null && court.type != null" class="card-text">{{court['type']}}</p>
             <div class="card-header">
               <small class="text-muted">Nadkriven</small>
             </div>
-            <p class="card-text">Da</p>
+            <p *ngIf="court != null && court.covered != null" class="card-text">{{court['covered'] === true ? 'Da' : 'Ne'}} </p>
           </div>
           
         </div>
-            <div class="container">
+            <div *ngIf="court != null && court.reservationCourtInfos != null" class="container">
                 <div class="row">
                   <div class="col-sm">
                     <p>Upcoming reservations</p>
@@ -35,20 +35,22 @@
                       </tr>
                       </thead>
                       <tbody>
-                      <tr *ngFor="let timeslot of timeslots; index as i">
+
+                      <tr *ngFor="let timeslot of court.reservationCourtInfos; index as i">
                         <th scope="row">{{ i + 1 }}</th>
                         <td>{{ timeslot.start | datePipe}}</td>
                         <td>{{ timeslot.end   | datePipe}}</td>
                       </tr>
                       </tbody>
                     </table>
+                  
                   </div>
                 </div>
             </div>
 
       </div>
 
-      <div class="col-sm">
+      <div class="col-sm col-lg">
             <div>
                 <label for="start">Select start:</label>
                 <input type="datetime-local" [ngModel]="startDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedStart($event)" id="start" name="start">            
@@ -150,7 +152,7 @@
              </form>
       </div>
 
-      <div class="col-sm">
+      <div class="col-sm col-lg">
         <p>Selecte timeslots reservations for Court 1</p>
          <table class="table table-striped">
            <thead>
@@ -170,7 +172,10 @@
              <td><button (click)="removeTimeslote(i)" >Remove</button></td>
            </tr>
            </tbody>
+           <div *ngIf="outcomeText">{{outcomeText}}</div>
          </table>
+      
       </div>
+      
     </div>
   </div>

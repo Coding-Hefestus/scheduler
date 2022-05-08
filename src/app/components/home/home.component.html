@@ -5,8 +5,6 @@
             <img [src]="court['url']" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">{{court['name']}}</h5>
-              <!-- <p class="card-text">{{course['opis']}}</p> ,[queryParams]="{ court:  court['id']}" -->
-              <!-- <button type="button" [routerLink]="['/tennis-scheduler/overview']" class="btn btn-link">Visit court</button> -->
               <button type="button" (click)="goToCourtOverview(court['id'])" class="btn btn-link">Visit court</button>
             </div>
         </div>

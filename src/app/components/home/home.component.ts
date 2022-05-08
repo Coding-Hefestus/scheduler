@@ -14,10 +14,6 @@ export class HomeComponent implements OnInit {
   public courtsToDisplay: Court[][] = [];
   public courts: Court[] = [];
   constructor( private _router: Router, private _activatedRoute: ActivatedRoute, private courtService : CourtService) {
-    // this.courts = [Builder(Court).id(1).courtName("Blue court").image("https://picsum.photos/id/944/900/500`").build(), Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build(),
-    // Builder(Court).id(1).courtName("ASFASF").image("https://picsum.photos/id/944/900/500`").build() ]
-    // this.courtsToDisplay = this.chunkArray(this.courts, 3);
-
 
    }
 

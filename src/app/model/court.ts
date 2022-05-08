@@ -1,8 +1,11 @@
 import { Reservations } from "./reservations"
 
 export class Court{
-    id!: Number
+    courtId!: number
     name!: String
     url!: string
-    reservations!: Reservations[]
+    dimension!: string
+    type: string
+    covered: boolean
+    reservationCourtInfos!: Reservations[]
 }

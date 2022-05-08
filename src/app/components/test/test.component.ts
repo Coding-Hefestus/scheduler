@@ -16,13 +16,6 @@ export class TestComponent implements OnInit {
         this.date = new Date().toISOString().slice(0, 16);
     }
   ngOnInit(): void {
-    // this.createPaymentIntent(23)
-    // .subscribe(clientSecretResponse => {
-    //   console.log("aadff: " + clientSecretResponse)
-    //   console.log("aaaaaaaaaaaaa: " + clientSecretResponse['clientSecret'])
-
-    
-     // });
      this.radioGroupForm = this.fb.group({
       'type': 1
     });

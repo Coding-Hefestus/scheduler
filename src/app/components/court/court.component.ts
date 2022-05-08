@@ -6,12 +6,15 @@ import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { StripeService } from 'ngx-stripe';
 import {StripeElementsOptions,PaymentRequestPaymentMethodEvent,PaymentIntent,PaymentRequestShippingAddressEvent} from '@stripe/stripe-js';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, JsonPipe } from '@angular/common';
 import {loadStripe} from '@stripe/stripe-js';
 import { ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {  StripePaymentElementComponent } from 'ngx-stripe';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CourtService } from 'src/app/services/court.service';
+import { Court } from 'src/app/model/court';
+import { ReservationRequest } from 'src/app/model/reservation-request';
 
 
 @Component({
@@ -43,11 +46,13 @@ export class CourtComponent implements OnInit {
   public successButton: boolean;
   public errorButton: boolean;
   public outcomeText: string;
+  public court: Court;
+  public reservationMessage: string;
 
   //timeslots repository
-  public timeslots: Timeslot[] = []; //[Builder(Timeslot).start("1650914076517").end("1650914076517").build()];
+  public timeslots: Timeslot[] = []; 
 
-  constructor(private fb: FormBuilder, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService) { 
+  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService, private courtService: CourtService) { 
 
 
   }
@@ -66,9 +71,16 @@ export class CourtComponent implements OnInit {
     this.stripeForm = this.fb.group({
       name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
       amount: new FormControl({value: this.amount, disabled: true}, [Validators.required, Validators.min(5)]),
-      email: [this.loggedInUserEmail, [Validators.email, Validators.required]],
+      email: [this.loggedInUserEmail, [Validators.email, Validators.required]]
     });
-   
+
+    //init Court's data
+    var courtId = this.activatedRoute.snapshot.queryParamMap.get('court')
+    this.courtService.fetchCourtData(courtId).subscribe(court => {
+      
+        this.court = court;
+        //console.log(JSON.stringify(this.court))
+    })
     
   }
 
@@ -102,6 +114,7 @@ export class CourtComponent implements OnInit {
   }
 
   public removeTimeslote(index : number){
+    this.outcomeText = null;
     this.resetPaymentIntent()
     if (this.timeslots.length == 0) return;
     this.timeslots.splice(index, 1);
@@ -111,6 +124,7 @@ export class CourtComponent implements OnInit {
   }
 
   public addTimeslot(){
+    this.outcomeText = null;
     if (this.startDate == null || this.startDate== undefined || this.endDate == null || this.endDate == undefined){
       alert("Start and end date must be valid for a given timeslot!");
       return;
@@ -152,12 +166,20 @@ export class CourtComponent implements OnInit {
   }
 
   public payByCash(){
-    console.log("paying by cash...")
+    var request = Builder(ReservationRequest).courtId(this.court.courtId).paymentMethod('CASH').reservationDtos(this.timeslots).user(1).build();
 
+    this.courtService.makeReservations(request).subscribe(response => {
+      //console.log(JSON.stringify(response))
+      if (!response.hasErrorMessage){
+        this.outcomeText = response.successMessage;
+      } else this.outcomeText = response.errorMessage;
+    })
+
+    
     
   }
 
-  public payByCard(){
+  public pay(success : string){
     if (this.stripeForm.valid) {
       this.setLoading(true);
       this.stripeService.confirmPayment({
@@ -195,12 +217,25 @@ export class CourtComponent implements OnInit {
             this.errorButton = false; this.successButton = true;
             this.paymentIntentExists = true;
             this.elementsOptions = {locale: 'en'}
+            //success mesage from BE is displyied underneath timeslots
+            this.outcomeText = success;
           }
         }
       });
     } else {
       console.log(this.stripeForm);
     }
+  }
+
+  public payByCard(){
+    var request = Builder(ReservationRequest).paymentIntent(this.elementsOptions.clientSecret).courtId(this.court.courtId).paymentMethod('CARD').reservationDtos(this.timeslots).user(1).build();
+
+    this.courtService.makeReservations(request).subscribe(response => {
+      if (!response.hasErrorMessage){
+        //if BE reservations are okay (no overalaps with other timeslots and timeslots are in future etc...), only the we call Stripe
+        this.pay(response.successMessage);
+      } else this.outcomeText = response.errorMessage;
+    })
   }
 
   public reloadPage(){
