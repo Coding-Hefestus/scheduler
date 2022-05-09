@@ -27,4 +27,20 @@ export class UserService {
       }
     }));
   };
+
+  public fetchUser(userId: number) : Observable<User> {
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.http.get(this.API + '/user/'+userId, { headers })
+    .pipe(map((res: any) => {
+      return res;
+    }), catchError(error => {
+      if (error.status === 400) {
+        return null;
+      }
+      else {
+        return null;
+      }
+    }));
+  };
 }

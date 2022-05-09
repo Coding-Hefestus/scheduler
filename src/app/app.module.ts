@@ -9,11 +9,11 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { HomeComponent } from './components/home/home.component';
 import { CourtComponent } from './components/court/court.component';
 import { DatePipe } from './utils/date-pipe';
-import { TestComponent } from './components/test/test.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './utils/material-module';
 import { NgxStripeModule } from 'ngx-stripe';
 import { HttpClientModule } from '@angular/common/http';
+import { UserComponent } from './components/user/user.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +22,7 @@ import { HttpClientModule } from '@angular/common/http';
     HomeComponent,
     CourtComponent,
     DatePipe,
-    TestComponent
+    UserComponent
   ],
   imports: [
     NgbModule,
