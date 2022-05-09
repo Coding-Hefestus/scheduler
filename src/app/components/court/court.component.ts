@@ -15,6 +15,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CourtService } from 'src/app/services/court.service';
 import { Court } from 'src/app/model/court';
 import { ReservationRequest } from 'src/app/model/reservation-request';
+import { User } from 'src/app/model/user';
+import { UserService } from 'src/app/services/user.service';
+import { ThisReceiver } from '@angular/compiler';
 
 
 @Component({
@@ -31,11 +34,13 @@ export class CourtComponent implements OnInit {
   public paymentTypeForm: FormGroup;
   public elementsOptions: StripeElementsOptions = {locale: 'en'};
  
-  //user's data
+  //user's data, to be taken from jwt (local storage) [id, roles]
   public loggedInUser = "Pera Peric";
   public loggedInUserEmail = "pera@gmail.com";
+  public userRole = 'ADMIN';
+  public loggedInUserId = 1;
 
-  //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10;
+  //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10; This sholud be taken from 'gui-config-service' 
   public amount = 0;
 
   //helper variables
@@ -48,14 +53,18 @@ export class CourtComponent implements OnInit {
   public outcomeText: string;
   public court: Court;
   public reservationMessage: string;
+  public selectedUser: User;
 
-  //timeslots repository
+  //timeslots and users repository
   public timeslots: Timeslot[] = []; 
+  public users: User[] = [];
 
-  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService, private courtService: CourtService) { 
+  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService, private courtService: CourtService, private userService: UserService) { 
 
 
   }
+
+
 
   ngOnInit(): void {
     //init Stripe
@@ -77,14 +86,22 @@ export class CourtComponent implements OnInit {
     //init Court's data
     var courtId = this.activatedRoute.snapshot.queryParamMap.get('court')
     this.courtService.fetchCourtData(courtId).subscribe(court => {
-      
         this.court = court;
-        //console.log(JSON.stringify(this.court))
     })
+
+    //if role is admin, load regular users
+    if (this.userRole == 'ADMIN'){
+      this.userService.fetchAllRegularUsers().subscribe(users => {
+        this.users = users;
+      })
+    }
+    
     
   }
 
-  
+  public onUserSelected(selectedUser){
+    this.selectedUser = selectedUser;
+  }
 
   // Show a spinner on payment submission
   public setLoading(isLoading) {
@@ -166,17 +183,16 @@ export class CourtComponent implements OnInit {
   }
 
   public payByCash(){
-    var request = Builder(ReservationRequest).courtId(this.court.courtId).paymentMethod('CASH').reservationDtos(this.timeslots).user(1).build();
+    var request = Builder(ReservationRequest)
+    .courtId(this.court.courtId).paymentMethod('CASH')
+    .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser['id'] : this.loggedInUserId)
+    .build();
 
     this.courtService.makeReservations(request).subscribe(response => {
-      //console.log(JSON.stringify(response))
       if (!response.hasErrorMessage){
         this.outcomeText = response.successMessage;
       } else this.outcomeText = response.errorMessage;
     })
-
-    
-    
   }
 
   public pay(success : string){
@@ -232,7 +248,7 @@ export class CourtComponent implements OnInit {
 
     this.courtService.makeReservations(request).subscribe(response => {
       if (!response.hasErrorMessage){
-        //if BE reservations are okay (no overalaps with other timeslots and timeslots are in future etc...), only the we call Stripe
+        //if BE reservations are okay (no overalaps with other timeslots and timeslots are in future etc...), only then we call Stripe
         this.pay(response.successMessage);
       } else this.outcomeText = response.errorMessage;
     })

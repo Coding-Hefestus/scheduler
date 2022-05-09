@@ -51,6 +51,7 @@
       </div>
 
       <div class="col-sm col-lg">
+          <p style="margin-top: 30px;">Please select timeslots:</p>
             <div>
                 <label for="start">Select start:</label>
                 <input type="datetime-local" [ngModel]="startDate | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="dateChangedStart($event)" id="start" name="start">            
@@ -63,8 +64,19 @@
             <div style="margin-top: 20px;">
               <button (click)="addTimeslot()">Add timeslot</button>
             </div>
+    
+            <p style="margin-top: 30px;">Select user for reservation (optional):</p>
+            <div *ngIf="users != null">
+              
+              <select [ngModel]="selectedUser" (ngModelChange)="onUserSelected($event)" name="userslist">
+                <!-- <option selected="selected">No selected user</option> -->
+                <option [ngValue]="u" *ngFor="let u of users">{{u['username']}}</option>
 
-            <p style="margin-top: 300px;">Please select payment type:</p>
+              </select>
+            </div>
+            
+
+            <p style="margin-top: 30px;">Please select payment type:</p>
             <form [formGroup]="paymentTypeForm">
               <div class="btn-group" role="group" ngbRadioGroup name="radioBasic" formControlName="type">
                 <label ngbButtonLabel class="btn-primary">
