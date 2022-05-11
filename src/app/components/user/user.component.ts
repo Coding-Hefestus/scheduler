@@ -21,12 +21,12 @@ export class UserComponent implements OnInit {
   ngOnInit(): void {
     this.passingDataService.currentMode.subscribe(currentMode => {
 
-      //console.log("from UserComponent: " + currentMode)
-
       if (Mode.EDIT == currentMode){
         var userId = 1 //make call to local-storage to extract id
         this.userService.fetchUser(userId).subscribe(user => {
           this.user = user;
+          console.log(JSON.stringify(this.user))
+          this.initEditMode();
         })
 
       } else if (Mode.REGISTER == currentMode){
@@ -38,24 +38,34 @@ export class UserComponent implements OnInit {
     });
   }
 
+  public submitFormEdit(){
+    this.user.firstname = this.userForm.get('firstname').value;
+    this.user.lastname = this.userForm.get('lastname').value;
+    this.user.password = this.userForm.get('password').value;
+    this.user.username = this.userForm.get('username').value;
+    this.user.email = this.userForm.get('email').value;
+    this.user.role = this.userForm.get('role').value;
+    
+    this.userService.editUser(this.user).subscribe(user => {
+      if (user){
+        alert("You have successfully edited user profile!")
+      } else {
+        alert("Server error!")
+      }
+    })
+
+  }
+
   private initEditMode(){
     this.userForm = this.fb.group({
       id:        [this.user['id'],        [ Validators.required]],
       firstname: [this.user['firstname'], [ Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      lastname:  [this.user['lastname'],  [ Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
+      lastname:  [this.user['lastname'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
       email:     [this.user['email'],     [ Validators.required,     Validators.email]],
-      lozinka:   [this.user['password'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      username:  [this.user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
-      /*
-    id!: number
-    firstname!: string
-    lastname!: string
-    email!: string
-    password!: string
-    username!: string
-    role!: string
-      */
-    })
+      password:  [this.user['password'],  [ Validators.required,     Validators.minLength(1), Validator.cannotContainWhitespaceOnly]],
+      username:  [this.user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
+      role:      [this.user['role'],      [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
+    });
   }
 
 }

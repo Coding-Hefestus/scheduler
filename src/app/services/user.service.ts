@@ -43,4 +43,20 @@ export class UserService {
       }
     }));
   };
+
+  public editUser(user: User) : Observable<User> {
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.http.post(this.API + '/user/', user, { headers })
+    .pipe(map((res: any) => {
+      return res;
+    }), catchError(error => {
+      if (error.status === 400) {
+        return null;
+      }
+      else {
+        return null;
+      }
+    }));
+  };
 }
