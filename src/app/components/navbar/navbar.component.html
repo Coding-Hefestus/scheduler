@@ -17,9 +17,25 @@
         </ul>
         <form class="d-flex">
           <button class="btn btn-primary"  style="margin-left: 5px;" >Login</button>
-          <button class="btn btn-primary" type="submit" style="margin-left: 5px;" >Register</button>
+
+          <!-- If user is loged in (jwt from local storage), hide 'Register' button -->
+          <button class="btn btn-primary" type="submit" style="margin-left: 5px;" (click)="openUserComponentInRegisterMode(contentRegister)">Register</button>
         </form>
       </div>
     </div>
 </nav>
+
+
+<ng-template #contentRegister let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title-register">Register here</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <app-user></app-user>
+  </div>
+  <!-- <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Login</button>
+  </div> -->
+</ng-template>
 

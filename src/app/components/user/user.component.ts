@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Mode } from 'src/app/model/mode';
 import { User } from 'src/app/model/user';
 import { PassingDataService } from 'src/app/services/passing-data.service';
@@ -15,27 +16,48 @@ export class UserComponent implements OnInit {
 
   public user: User;
   public userForm: FormGroup;
+  public mode: string;
+  public disableRegister: boolean;
 
-  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private userService: UserService) { }
+  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private userService: UserService) { }
 
   ngOnInit(): void {
     this.passingDataService.currentMode.subscribe(currentMode => {
-
+      
       if (Mode.EDIT == currentMode){
+        this.mode = 'edit';
         var userId = 1 //make call to local-storage to extract id
         this.userService.fetchUser(userId).subscribe(user => {
           this.user = user;
-          console.log(JSON.stringify(this.user))
+          
           this.initEditMode();
         })
 
       } else if (Mode.REGISTER == currentMode){
+        this.mode = 'register';
+        this.user = new User();
+        this.initRegisterMode();
 
       } else if (Mode.LOGIN == currentMode){
 
       }
 
     });
+  }
+
+  public submitFormRegister(){
+    this.user.password = this.userForm.get('password').value;
+    this.user.username = this.userForm.get('username').value;
+    this.user.email = this.userForm.get('email').value;
+    this.userService.registerUser(this.user).subscribe(user => {
+      this.disableRegister = true;
+      if (user){
+        alert("You have successfully registerd!")
+      } else {
+        alert("Server error!")
+      }
+      this.router.navigate(["/tennis-scheduler"]);
+    })
   }
 
   public submitFormEdit(){
@@ -54,6 +76,14 @@ export class UserComponent implements OnInit {
       }
     })
 
+  }
+
+  private initRegisterMode(){
+    this.userForm = this.fb.group({
+      email:     [this.user['email'],     [ Validators.required,     Validators.email]],
+      password:  [this.user['password'],  [ Validators.required,     Validators.minLength(1), Validator.cannotContainWhitespaceOnly]],
+      username:  [this.user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
+    });
   }
 
   private initEditMode(){
