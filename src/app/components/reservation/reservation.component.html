@@ -1,0 +1,49 @@
+<div class="container">
+    <div class="row"> 
+      <div class="col-sm col-lg">
+        
+        <div *ngIf="isAdmin">
+          
+          <p style="margin-top: 30px;">Select user:</p>
+          <select [ngModel]="selectedUser" (ngModelChange)="onUserSelected($event)" name="userslist">
+            <option [ngValue]="u" *ngFor="let u of users">{{u['username']}}</option>
+          </select>
+
+        </div>
+
+
+        <p style="margin-top: 30px;">Select court:</p>
+        <select [ngModel]="selectedCourt" (ngModelChange)="onCourtSelected($event)" name="courtslist">
+            <option [ngValue]="c" *ngFor="let c of courts">{{c['name']}}</option>
+        </select>
+
+        <p style="margin-top: 30px;">Reservations:</p>
+        <table class="table table-striped">
+            <thead>
+               <tr>
+                <th scope="col">#</th>
+                <th scope="col">Reservation ID</th>
+                <th scope="col">Start</th>
+                <th scope="col">End</th>
+                <th scope="col">Payment type</th>
+                <th scope="col">Cancel timeslot</th>
+                <th scope="col">Paid</th>
+               </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let r of reservationsByCourtAndUser; index as i">
+              <th scope="row">{{ i + 1 }}</th>
+              <td>{{ r['reservationId'] | number }}</td>
+              <td>{{ r['start'] | datePipe }}</td>
+              <td>{{ r['end'] | datePipe }}</td>
+              <td>{{ r['paymentType'] }}</td>
+              <td><button (click)="removeReservation(i, r['reservationId'])" >Cancel</button></td>
+              <td>{{ r['paid'] == true ? 'Yes' : 'No'}}</td>
+              
+            </tr>
+            </tbody>
+          </table>
+
+      </div>
+    </div>
+</div>

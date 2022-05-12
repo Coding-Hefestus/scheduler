@@ -14,6 +14,7 @@ import { MaterialModule } from './utils/material-module';
 import { NgxStripeModule } from 'ngx-stripe';
 import { HttpClientModule } from '@angular/common/http';
 import { UserComponent } from './components/user/user.component';
+import { ReservationComponent } from './components/reservation/reservation.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { UserComponent } from './components/user/user.component';
     HomeComponent,
     CourtComponent,
     DatePipe,
-    UserComponent
+    UserComponent,
+    ReservationComponent
   ],
   imports: [
     NgbModule,

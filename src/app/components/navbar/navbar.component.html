@@ -12,14 +12,21 @@
           </li>
           <li class="nav-item">
             <!-- hide if no logged-in user TODO -->
-            <a class="nav-link active" [routerLink]="['/reservations']">Rezervacije</a>
+            <a class="nav-link active" [routerLink]="['/reservations']">Reservations</a>
+          </li>
+
+          <li class="nav-item">
+            <!-- hide if no logged-in user TODO -->
+            <a class="nav-link active" [routerLink]="['/courts']">Court management</a>
           </li>
         </ul>
         <form class="d-flex">
+            <!-- If user is loged in (jwt from local storage), hide 'Register' button -->
           <button class="btn btn-primary"  style="margin-left: 5px;" >Login</button>
 
           <!-- If user is loged in (jwt from local storage), hide 'Register' button -->
           <button class="btn btn-primary" type="submit" style="margin-left: 5px;" (click)="openUserComponentInRegisterMode(contentRegister)">Register</button>
+          
         </form>
       </div>
     </div>
