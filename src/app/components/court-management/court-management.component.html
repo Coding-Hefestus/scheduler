@@ -18,17 +18,7 @@
                       <input class="form-control" formControlName="covered" ngbButton type="radio" class="btn-check" [value]="2" (click)="changeCoveredToFalse()"> No
                     </label>            
                 </div>
-                <!-- <input type="text" class="form-control" formControlName="username" id="username" required>
-      
-                  <small class="text-danger" *ngIf="userForm.get('username').hasError('required')">
-                      This field is required.
-                  </small>
-                  <small class="text-danger" *ngIf="userForm.get('username').hasError('minlength')">
-                      The minimum length for this field is {{userForm.get('username').errors['minlength'].requiredLength}} characters.
-                  </small>
-                  <small class="text-danger" *ngIf="userForm.get('username').hasError('cannotContainWhitespaceOnly')">
-                    This field must not contain whitespaces.
-                 </small> -->
+              
               </div>
   
               <div class="col-md-4">
@@ -59,7 +49,6 @@
 
               <h1>Court image upload:</h1>
               <input value="" type="file" name="title" (change)="onFileSelected($event) " multiple>
-              <!-- <input value="" type="file" name="title" (change)="onFilesSelected($event)"> -->
               <mat-nav-list>
                   <mat-list-item *ngIf="selectedFile" > {{ selectedFile.name }} </mat-list-item>
                </mat-nav-list>
@@ -74,4 +63,32 @@
     </div>
 
   </div>
+
+
+  <div *ngIf="mode == 'edit'">
+    <div class="container">
+      <div class="row">
+          <div class="form-inline justify-content-center">
+            <p style="margin-top: 30px;">Select court:</p>
+            <select [ngModel]="selectedCourt" (ngModelChange)="onCourtSelected($event)" name="courtslist">
+                <option [ngValue]="c" *ngFor="let c of courts">{{c['name']}}</option>
+            </select>
+            <form *ngIf="courtForm && selectedCourt" [formGroup]="courtForm"  class="row g-3 needs-validation" novalidate>
+            
+               
+
+                <div class="col-md-4">
+                    <label for="Id" class="form-label">ID</label>
+                    <input type="text" class="form-control" [disabled]="disableId" formControlName="id" id="id" aria-describedby="inputGroupPrepend">
+                </div>
+
+                <div class="col-lg-12">
+                    <label for="validationCustom03">Court image:</label>
+                    <img src="{{selectedCourt['url']}}" class="card-img-top" alt="...">
+                </div>
+            </form>
+          </div>
+      </div>
+    </div>
+</div>
 

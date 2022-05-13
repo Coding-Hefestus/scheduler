@@ -6,7 +6,7 @@
           <div class="card-body">
             <h5 *ngIf="court != null && court.name != null" class="card-title">{{court['name']}}</h5>
             <div class="card-header">
-              <small class="text-muted">Dimenzije</small>
+              <small class="text-muted">Dimension</small>
             </div>
             <p *ngIf="court != null && court.dimension != null" class="card-text">{{court['dimension']}}</p>
             <div class="card-header">
@@ -14,7 +14,7 @@
             </div>
             <p *ngIf="court != null && court.type != null" class="card-text">{{court['type']}}</p>
             <div class="card-header">
-              <small class="text-muted">Nadkriven</small>
+              <small class="text-muted">Covered</small>
             </div>
             <p *ngIf="court != null && court.covered != null" class="card-text">{{court['covered'] === true ? 'Da' : 'Ne'}} </p>
           </div>

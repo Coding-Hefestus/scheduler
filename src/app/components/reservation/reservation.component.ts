@@ -52,7 +52,6 @@ export class ReservationComponent implements OnInit {
 
   public onUserSelected(selectedUser){
     this.selectedUser = selectedUser;
-    console.log(JSON.stringify(this.selectedUser))
     if (this.selectedCourt){
       this.fetchData();
     }
@@ -60,7 +59,6 @@ export class ReservationComponent implements OnInit {
 
   public onCourtSelected(selectedCourt){
     this.selectedCourt = selectedCourt;
-    console.log(JSON.stringify(this.selectedCourt))
     if (this.selectedUser){
       this.fetchData();
     }
