@@ -27,7 +27,7 @@ export class CourtService {
         return null;
       }
       else {
-        return null; //Observable.throw(error.json().error || 'Server error');
+        return null; 
       }
     }));
   };
@@ -116,4 +116,12 @@ export class CourtService {
       }
     }));
   }
+
+  public createNewCourt(formData: FormData): Observable<any> {
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<any>(this.API + `/court/create-new`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+}
 }

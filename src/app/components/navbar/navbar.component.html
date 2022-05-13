@@ -17,7 +17,15 @@
 
           <li class="nav-item">
             <!-- hide if no logged-in user TODO -->
-            <a class="nav-link active" [routerLink]="['/courts']">Court management</a>
+            <!-- <a class="nav-link active" [routerLink]="['/court-management']">Court management</a> -->
+            <div ngbDropdown class="d-inline-block">
+              <button type="button" class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Court management</button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <button ngbDropdownItem (click)="createCourt()" [routerLink]="['/court-management']">Create court</button>
+                <button ngbDropdownItem (click)="editCourt()" [routerLink]="['/court-management']">Edit court</button>
+              
+              </div>
+            </div>
           </li>
         </ul>
         <form class="d-flex">

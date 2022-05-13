@@ -1,0 +1,77 @@
+<div *ngIf="mode == 'register'">
+    <div class="container">
+      <div class="row">
+          <div class="form-inline justify-content-center">
+            <form *ngIf="courtForm" [formGroup]="courtForm"  class="row g-3 needs-validation" novalidate>
+              
+                <!-- <mat-radio-group aria-label="Select an option">
+                    <mat-radio-button value="1">Option 1</mat-radio-button>
+                    <mat-radio-button value="2">Option 2</mat-radio-button>
+                  </mat-radio-group> -->
+              <div class="col-md-4">
+                <label for="username" class="form-label">Covered:</label><br>
+                <div class="btn-group"  role="group" ngbRadioGroup name="radioBasic" >
+                    <label ngbButtonLabel class="btn-primary">
+                      <input class="form-control" formControlName="covered" ngbButton type="radio" class="btn-check" [value]="1" (click)="changeCoveredToTrue()" > Yes
+                    </label>
+                    <label ngbButtonLabel class="btn-primary">
+                      <input class="form-control" formControlName="covered" ngbButton type="radio" class="btn-check" [value]="2" (click)="changeCoveredToFalse()"> No
+                    </label>            
+                </div>
+                <!-- <input type="text" class="form-control" formControlName="username" id="username" required>
+      
+                  <small class="text-danger" *ngIf="userForm.get('username').hasError('required')">
+                      This field is required.
+                  </small>
+                  <small class="text-danger" *ngIf="userForm.get('username').hasError('minlength')">
+                      The minimum length for this field is {{userForm.get('username').errors['minlength'].requiredLength}} characters.
+                  </small>
+                  <small class="text-danger" *ngIf="userForm.get('username').hasError('cannotContainWhitespaceOnly')">
+                    This field must not contain whitespaces.
+                 </small> -->
+              </div>
+  
+              <div class="col-md-4">
+                <label for="email" class="form-label">Type</label>
+                <input type="text" class="form-control" formControlName="type" id="type" aria-describedby="inputGroupPrepend" required>
+                <small class="text-danger" *ngIf="courtForm.get('type').hasError('required')">
+                    This field is required.
+                </small>
+              </div>
+  
+              <div class="col-md-4">
+                <label for="lozinka" class="form-label">Dimensions:</label>
+                <input type="text" class="form-control" formControlName="dimension" id="dimension"  aria-describedby="inputGroupPrepend" required>
+      
+                <small class="text-danger" *ngIf="courtForm.get('dimension').hasError('required')">
+                    This field is required.
+                </small>
+              </div> 
+
+              <div class="col-md-4">
+                <label for="lozinka" class="form-label">Name:</label>
+                <input type="text" class="form-control" formControlName="name" id="name"  aria-describedby="inputGroupPrepend" required>
+      
+                <small class="text-danger" *ngIf="courtForm.get('name').hasError('required')">
+                    This field is required.
+                </small>
+              </div>
+
+              <h1>Court image upload:</h1>
+              <input value="" type="file" name="title" (change)="onFileSelected($event) " multiple>
+              <!-- <input value="" type="file" name="title" (change)="onFilesSelected($event)"> -->
+              <mat-nav-list>
+                  <mat-list-item *ngIf="selectedFile" > {{ selectedFile.name }} </mat-list-item>
+               </mat-nav-list>
+              
+              <!-- [disabled]="courtForm.invalid || !courtForm.dirty" -->
+              <div class="col-12">
+                <button class="btn btn-primary" (click)="submitFormCreate()"  type="submit">Create new Court</button>
+               </div>
+            </form>
+          </div>
+      </div>
+    </div>
+
+  </div>
+

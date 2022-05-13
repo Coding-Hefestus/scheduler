@@ -15,6 +15,7 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { HttpClientModule } from '@angular/common/http';
 import { UserComponent } from './components/user/user.component';
 import { ReservationComponent } from './components/reservation/reservation.component';
+import { CourtManagementComponent } from './components/court-management/court-management.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ReservationComponent } from './components/reservation/reservation.compo
     CourtComponent,
     DatePipe,
     UserComponent,
-    ReservationComponent
+    ReservationComponent,
+    CourtManagementComponent
   ],
   imports: [
     NgbModule,

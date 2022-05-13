@@ -41,6 +41,16 @@ export class NavbarComponent implements OnInit {
     });
   }
 
+  public createCourt(){
+    //inform CourtManagement about opening Mode
+    this.passingDataService.changeMode(Mode.REGISTER); //admin is about to create new Court
+  }
+
+  public editCourt(){
+    //inform CourtManagement about opening Mode
+    this.passingDataService.changeMode(Mode.EDIT); //admin is about to edit particular Court
+  }
+
   private getDismissReason(reason: any): string {
     if (reason === ModalDismissReasons.ESC) {
       return 'by pressing ESC';
