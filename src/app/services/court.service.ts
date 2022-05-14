@@ -123,5 +123,32 @@ export class CourtService {
       reportProgress: true,
       observe: 'events'
     });
-}
+  }
+
+  public editCourt(formData: FormData): Observable<any> {
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<any>(this.API + `/court/edit`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
+  public deactivateCourt(courtId: number) : Observable<any> {
+
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.http.delete(this.API + '/court/'+courtId , { headers })
+    .pipe(map((res: any) => {
+      return res;
+    }), catchError(error => {
+      if (error.status === 400) {
+        return null;
+      }
+      else {
+        return null;
+      }
+    }));
+  }
+
+
 }

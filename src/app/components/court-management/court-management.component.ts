@@ -21,6 +21,7 @@ export class CourtManagementComponent implements OnInit {
   public selectedCourt : Court;
   public courts: Court[] = [];
   public disableId: true;
+  public selectedUrl: string;
 
   constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private courtService : CourtService) { }
 
@@ -55,11 +56,13 @@ export class CourtManagementComponent implements OnInit {
   }
 
   public changeCoveredToTrue(){
-      this.newCourt.covered = true;
+    if (this.mode === 'register') this.newCourt.covered = true;
+    if (this.mode === 'edit') this.selectedCourt.covered = true;
   }
 
   public changeCoveredToFalse(){
-    this.newCourt.covered = false;
+    if (this.mode === 'register') this.newCourt.covered = false;
+    if (this.mode === 'edit') this.selectedCourt.covered = false;
   }
 
   public submitFormCreate(){
@@ -82,8 +85,6 @@ export class CourtManagementComponent implements OnInit {
       return;
     }
 
-   
-
     this.newCourt.type = this.courtForm.get('type').value;
     this.newCourt.dimension = this.courtForm.get('dimension').value;
     this.newCourt.name = this.courtForm.get('name').value;
@@ -94,15 +95,80 @@ export class CourtManagementComponent implements OnInit {
     fd.append("court", JSON.stringify(this.newCourt))
 
     this.courtService.createNewCourt(fd).subscribe(data => {
-     
+      if (data.body != undefined){
+        if (data.body.reason != undefined){
+          alert(data.body.reason);
+        }
+      }
+    });
+  }
+
+  public submitFormEdit(){
+
+    if (!this.courtForm.get('type').value){
+      alert("You must specify Court type!")
+      return;
+    }
+
+    if (!this.courtForm.get('dimension').value){
+      alert("You must specify Court dimensions!")
+      return;
+    }
+    if (!this.courtForm.get('name').value){
+      alert("You must specify Court name!")
+      return;
+    }
+    if (!this.selectedFile && !this.selectedCourt.url){
+      alert("You must specify Court image!")
+      return;
+    }
+
+    this.selectedCourt.type = this.courtForm.get('type').value;
+    this.selectedCourt.dimension = this.courtForm.get('dimension').value;
+    this.selectedCourt.name = this.courtForm.get('name').value;
+
+    var fd = new FormData();
+    // fd.append('file', this.selectedFile, this.selectedFile.name);
+    if (this.selectedFile){
+      fd.append('file', this.selectedFile, this.selectedFile.name);
+    } else {
+      fd.append('file',null);
+    }
+
+  
+    
+    fd.append("court", JSON.stringify(this.selectedCourt))
+
+    this.courtService.editCourt(fd).subscribe(data => {
+      if (data.body != undefined){
+        if (data.body.reason != undefined){
+          alert(data.body.reason);
+        }
+      }
+    });
+
+  }
+
+  public deactivateCourt(){
+    this.courtService.deactivateCourt(this.selectedCourt.courtId).subscribe(data => {
+      alert("Court deactivated");
+      this.router.navigate(["/tennis-scheduler"]);
       
-      
+
     })
   }
 
   public onFileSelected(event){
     if (event.target.files[0] != null && event.target.files[0] != undefined){
       this.selectedFile = event.target.files[0];
+      if (this.mode == 'edit'){
+        this.selectedCourt.url = null;
+        const reader = new FileReader();
+        reader.readAsDataURL(this.selectedFile); 
+        reader.onload = (_event) => { 
+          this.selectedUrl = reader.result as string; 
+        }
+      }
     }
   } 
 
@@ -114,29 +180,21 @@ export class CourtManagementComponent implements OnInit {
 
   private initEditMode(){
     this.courtForm = this.fb.group({
-      //add image 
-      // covered:   [this.newCourt.covered, ],
       id:        [{value: this.selectedCourt.courtId, disabled: true}, [Validators.required]],
       covered:   [{'type': 1}, [Validators.required]],
       type:      [this.selectedCourt.type,     [ Validators.required]],
       dimension: [this.selectedCourt.dimension,[ Validators.required,      Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
       name:      [this.selectedCourt.name,     [ Validators.required]],
-      
     });
   
   }
 
   private initCreateMode(){
-
     this.courtForm = this.fb.group({
-      //add image 
-      // covered:   [this.newCourt.covered, ],
-
       covered: [{'type': 1}, [Validators.required]],
       type:      ['',     [ Validators.required]],
       dimension: ['',     [ Validators.required,      Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      name:      ['',     [ Validators.required]],
-      
+      name:      ['',     [ Validators.required]]
     });
   }
 

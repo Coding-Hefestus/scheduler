@@ -4,10 +4,6 @@
           <div class="form-inline justify-content-center">
             <form *ngIf="courtForm" [formGroup]="courtForm"  class="row g-3 needs-validation" novalidate>
               
-                <!-- <mat-radio-group aria-label="Select an option">
-                    <mat-radio-button value="1">Option 1</mat-radio-button>
-                    <mat-radio-button value="2">Option 2</mat-radio-button>
-                  </mat-radio-group> -->
               <div class="col-md-4">
                 <label for="username" class="form-label">Covered:</label><br>
                 <div class="btn-group"  role="group" ngbRadioGroup name="radioBasic" >
@@ -48,15 +44,14 @@
               </div>
 
               <h1>Court image upload:</h1>
-              <input value="" type="file" name="title" (change)="onFileSelected($event) " multiple>
+              <input value="" type="file" name="title" (change)="onFileSelected($event) ">
               <mat-nav-list>
                   <mat-list-item *ngIf="selectedFile" > {{ selectedFile.name }} </mat-list-item>
-               </mat-nav-list>
+              </mat-nav-list>
               
-              <!-- [disabled]="courtForm.invalid || !courtForm.dirty" -->
               <div class="col-12">
                 <button class="btn btn-primary" (click)="submitFormCreate()"  type="submit">Create new Court</button>
-               </div>
+              </div>
             </form>
           </div>
       </div>
@@ -73,19 +68,79 @@
             <select [ngModel]="selectedCourt" (ngModelChange)="onCourtSelected($event)" name="courtslist">
                 <option [ngValue]="c" *ngFor="let c of courts">{{c['name']}}</option>
             </select>
-            <form *ngIf="courtForm && selectedCourt" [formGroup]="courtForm"  class="row g-3 needs-validation" novalidate>
-            
-               
 
+            <p style="margin-top: 30px;">Disable court</p>
+            <div class="col-12">
+                <button class="btn btn-primary"  [disabled]="!selectedCourt" (click)="deactivateCourt()"  type="submit">Deactivate court</button>
+            </div>
+
+
+            <p style="margin-top: 30px;"></p>
+            <form *ngIf="courtForm && selectedCourt" [formGroup]="courtForm"  class="row g-3 needs-validation" novalidate>
                 <div class="col-md-4">
                     <label for="Id" class="form-label">ID</label>
                     <input type="text" class="form-control" [disabled]="disableId" formControlName="id" id="id" aria-describedby="inputGroupPrepend">
                 </div>
 
-                <div class="col-lg-12">
-                    <label for="validationCustom03">Court image:</label>
-                    <img src="{{selectedCourt['url']}}" class="card-img-top" alt="...">
+                <p>Covered:</p>
+                <div class="btn-group"  role="group" ngbRadioGroup name="radioBasic" >
+                    <label ngbButtonLabel class="btn-primary">
+                      <input class="form-control" formControlName="covered" ngbButton type="radio" class="btn-check" [value]="1" (click)="changeCoveredToTrue()" > Yes
+                    </label>
+                    <label ngbButtonLabel class="btn-primary">
+                      <input class="form-control" formControlName="covered" ngbButton type="radio" class="btn-check" [value]="2" (click)="changeCoveredToFalse()"> No
+                    </label>            
                 </div>
+
+                <div class="col-md-4">
+                    <label for="email" class="form-label">Type</label>
+                    <input type="text" class="form-control" formControlName="type" id="type" aria-describedby="inputGroupPrepend" required>
+                    <small class="text-danger" *ngIf="courtForm.get('type').hasError('required')">
+                        This field is required.
+                    </small>
+                </div>
+      
+                <div class="col-md-4">
+                    <label for="lozinka" class="form-label">Dimensions:</label>
+                    <input type="text" class="form-control" formControlName="dimension" id="dimension"  aria-describedby="inputGroupPrepend" required>
+          
+                    <small class="text-danger" *ngIf="courtForm.get('dimension').hasError('required')">
+                        This field is required.
+                    </small>
+                </div> 
+    
+                <div class="col-md-4">
+                    <label for="lozinka" class="form-label">Name:</label>
+                    <input type="text" class="form-control" formControlName="name" id="name"  aria-describedby="inputGroupPrepend" required>
+          
+                    <small class="text-danger" *ngIf="courtForm.get('name').hasError('required')">
+                        This field is required.
+                    </small>
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-primary" (click)="submitFormEdit()"  type="submit">Save changes</button>
+                </div>
+
+                
+              <h1>Court image upload:</h1>
+              <input value="" type="file" name="title" (change)="onFileSelected($event) ">
+              <mat-nav-list>
+                  <mat-list-item *ngIf="selectedFile" > {{ selectedFile.name }} </mat-list-item>
+              </mat-nav-list>
+
+                <label for="validationCustom03">Court image:</label>
+                <ng-container *ngIf="selectedCourt['url']; " >
+                    <div class="col-lg-12">
+                        <img src="{{selectedCourt['url']}}" class="card-img-top" alt="...">
+                    </div> 
+                </ng-container>
+
+                <ng-container *ngIf="selectedUrl" >
+                    <div class="col-lg-12">
+                        <img [src]="selectedUrl" class="card-img-top" alt="...">
+                    </div> 
+                </ng-container>
             </form>
           </div>
       </div>
