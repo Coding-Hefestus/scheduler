@@ -4,6 +4,7 @@ import { CourtManagementComponent } from './components/court-management/court-ma
 import { CourtComponent } from './components/court/court.component';
 import { HomeComponent } from './components/home/home.component';
 import { ReservationComponent } from './components/reservation/reservation.component';
+import { TestComponent } from './components/test/test.component';
 import { UserComponent } from './components/user/user.component';
 
 const routes: Routes = [
@@ -12,7 +13,9 @@ const routes: Routes = [
   {path: 'tennis-scheduler/overview', component: CourtComponent},
   {path: 'profile/:userIdPlaceholder', component: UserComponent},
   {path: 'reservations', component: ReservationComponent},
-  {path: 'court-management', component: CourtManagementComponent}
+  {path: 'court-management', component: CourtManagementComponent},
+  {path: 'test', component: TestComponent}
+  
 ];
 
 @NgModule({

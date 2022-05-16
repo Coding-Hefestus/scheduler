@@ -16,6 +16,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { UserComponent } from './components/user/user.component';
 import { ReservationComponent } from './components/reservation/reservation.component';
 import { CourtManagementComponent } from './components/court-management/court-management.component';
+import {
+  InjectableRxStompConfig,
+  RxStompService,
+  rxStompServiceFactory,
+} from '@stomp/ng2-stompjs';
+import { rxStompConfig } from './rx-stomp.config';
+import { TestComponent } from './components/test/test.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +33,8 @@ import { CourtManagementComponent } from './components/court-management/court-ma
     DatePipe,
     UserComponent,
     ReservationComponent,
-    CourtManagementComponent
+    CourtManagementComponent,
+    TestComponent
   ],
   imports: [
     NgbModule,
@@ -39,7 +47,15 @@ import { CourtManagementComponent } from './components/court-management/court-ma
     NgxStripeModule.forRoot('pk_test_51KrplgL8U3BNM2iQOPu9Y2SCV5j07e8d1oWbwrYwTe3wYc3QkFX1JlveVgBO0AB5ClKnsOxtHcZP3Re7lsE9nDIe00eP1g0G8G'),
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [{
+    provide: InjectableRxStompConfig,
+    useValue: rxStompConfig,
+  },
+  {
+    provide: RxStompService,
+    useFactory: rxStompServiceFactory,
+    deps: [InjectableRxStompConfig],
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

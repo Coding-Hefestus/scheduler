@@ -17,7 +17,8 @@ import { Court } from 'src/app/model/court';
 import { ReservationRequest } from 'src/app/model/reservation-request';
 import { User } from 'src/app/model/user';
 import { UserService } from 'src/app/services/user.service';
-import { ThisReceiver } from '@angular/compiler';
+import { RxStompService } from '@stomp/ng2-stompjs';
+import { Message } from '@stomp/stompjs';
 
 
 @Component({
@@ -38,7 +39,7 @@ export class CourtComponent implements OnInit {
   public loggedInUser = "Pera Peric";
   public loggedInUserEmail = "pera@gmail.com";
   public userRole = 'ADMIN';
-  public loggedInUserId = 1;
+  public loggedInUserId = 2;
 
   //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10; This sholud be taken from 'gui-config-service' 
   public amount = 0;
@@ -59,7 +60,11 @@ export class CourtComponent implements OnInit {
   public timeslots: Timeslot[] = []; 
   public users: User[] = [];
 
-  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, private router: Router, @Inject(DOCUMENT) private document: Document, private http: HttpClient, private stripeService: StripeService, private courtService: CourtService, private userService: UserService) { 
+  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, 
+              private router: Router, @Inject(DOCUMENT) private document: Document, 
+              private http: HttpClient, private stripeService: StripeService, 
+              private courtService: CourtService, private userService: UserService,
+              private rxStompService: RxStompService) { 
 
 
   }
@@ -95,6 +100,10 @@ export class CourtComponent implements OnInit {
         this.users = users;
       })
     }
+
+    this.rxStompService.watch('/scheduler/reservation-event').subscribe((message: Message) => {
+      console.log("iz /scheduler/reservation-event: " + message.body);
+    });
     
     
   }
