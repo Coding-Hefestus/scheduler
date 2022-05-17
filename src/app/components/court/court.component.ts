@@ -55,6 +55,8 @@ export class CourtComponent implements OnInit {
   public court: Court;
   public reservationMessage: string;
   public selectedUser: User;
+  public recentlyMadeTimeslots: any[] = [];
+  public recentlyMadeReservationUser: string;
 
   //timeslots and users repository
   public timeslots: Timeslot[] = []; 
@@ -65,8 +67,6 @@ export class CourtComponent implements OnInit {
               private http: HttpClient, private stripeService: StripeService, 
               private courtService: CourtService, private userService: UserService,
               private rxStompService: RxStompService) { 
-
-
   }
 
 
@@ -103,6 +103,10 @@ export class CourtComponent implements OnInit {
 
     this.rxStompService.watch('/scheduler/reservation-event').subscribe((message: Message) => {
       console.log("iz /scheduler/reservation-event: " + message.body);
+        var event = JSON.parse(message.body)
+        this.recentlyMadeTimeslots = event['reservationDtos'];
+        console.log(this.recentlyMadeTimeslots)
+        this.recentlyMadeReservationUser = event['username'];
     });
     
     
@@ -134,7 +138,7 @@ export class CourtComponent implements OnInit {
 
   private createPaymentIntent(amount: number): Observable<any> {
     return this.http.post<any>(
-      `http://localhost:8080/create-payment-intent`,
+      `http://localhost:8080/stripe/create-payment-intent`,
       { amount : amount }
     );
   }
@@ -253,7 +257,10 @@ export class CourtComponent implements OnInit {
   }
 
   public payByCard(){
-    var request = Builder(ReservationRequest).paymentIntent(this.elementsOptions.clientSecret).courtId(this.court.courtId).paymentMethod('CARD').reservationDtos(this.timeslots).user(1).build();
+    var request = Builder(ReservationRequest)
+    .paymentIntent(this.elementsOptions.clientSecret)
+    .courtId(this.court.courtId).paymentMethod('CARD')
+    .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser.id : 2).build();
 
     this.courtService.makeReservations(request).subscribe(response => {
       if (!response.hasErrorMessage){

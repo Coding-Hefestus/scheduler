@@ -165,7 +165,7 @@
       </div>
 
       <div class="col-sm col-lg">
-        <p>Selecte timeslots reservations for Court 1</p>
+        <p *ngIf="court">Selected timeslots reservations for Court {{court['name']}}</p>
          <table class="table table-striped">
            <thead>
            <tr>
@@ -185,6 +185,27 @@
            </tr>
            </tbody>
            <div *ngIf="outcomeText">{{outcomeText}}</div>
+         </table>
+
+         <p *ngIf="court">Recently made reservations for Court {{court['name']}}</p>
+         <table class="table table-striped">
+           <thead>
+           <tr>
+             <th scope="col">#</th>
+             <th scope="col">Start</th>
+             <th scope="col">End</th>
+             <th scope="col">User</th>
+           </tr>
+           </thead>
+           <tbody>
+           <tr *ngFor="let timeslot of recentlyMadeTimeslots; index as i">
+             <th scope="row">{{ i + 1 }}</th>
+             <td>{{ timeslot['start'] | datePipe}}</td>
+             <td>{{ timeslot['end']   | datePipe}}</td>
+             <td>{{ recentlyMadeReservationUser }}</td>
+           </tr>
+           </tbody>
+           
          </table>
       
       </div>
