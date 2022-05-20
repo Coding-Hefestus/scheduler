@@ -19,6 +19,7 @@ import { User } from 'src/app/model/user';
 import { UserService } from 'src/app/services/user.service';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { Message } from '@stomp/stompjs';
+import { TokenStorageService } from 'src/app/services/token-storag.service';
 
 
 @Component({
@@ -35,14 +36,10 @@ export class CourtComponent implements OnInit {
   public paymentTypeForm: FormGroup;
   public elementsOptions: StripeElementsOptions = {locale: 'en'};
  
-  //user's data, to be taken from jwt (local storage) [id, roles]
-  public loggedInUser = "Pera Peric";
-  public loggedInUserEmail = "pera@gmail.com";
-  public userRole = 'ADMIN';
-  public loggedInUserId = 2;
-
-  //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10; This sholud be taken from 'gui-config-service' 
-  //public amount = 0;
+  //user's data, to be taken from jwt (session storage) [id, roles]
+  public loggedInUser : User;
+  public userRole = '';
+ 
 
   //helper variables
   public paymentType: string;
@@ -66,7 +63,8 @@ export class CourtComponent implements OnInit {
               private router: Router, @Inject(DOCUMENT) private document: Document, 
               private http: HttpClient, private stripeService: StripeService, 
               private courtService: CourtService, private userService: UserService,
-              private rxStompService: RxStompService) { 
+              private rxStompService: RxStompService,
+              private tokenStorageService : TokenStorageService) { 
   }
 
 
@@ -74,6 +72,11 @@ export class CourtComponent implements OnInit {
   ngOnInit(): void {
     //init Stripe
     loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
+    //init user
+    this.loggedInUser = this.tokenStorageService.getUser();
+    if (this.loggedInUser) this.userRole = this.loggedInUser.role;
+    
 
     //initialize paymentTypeForm [cash or card]
     this.paymentTypeForm = this.fb.group({'type': 1});
@@ -86,12 +89,25 @@ export class CourtComponent implements OnInit {
     this.courtService.fetchCourtData(courtId).subscribe(court => {
         this.court = court;
 
-         //initialize form for user's data
-        this.stripeForm = this.fb.group({
-          name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
-          amount: new FormControl({value: 0, disabled: true}, [Validators.required, Validators.min(this.court.price)]),
-          email: [this.loggedInUserEmail, [Validators.email, Validators.required]]
-        });
+        if (this.loggedInUser && this.userRole == 'USER'){
+           //initialize form for user's data
+           this.stripeForm = this.fb.group({
+             name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
+             amount: new FormControl({value: 0, disabled: true}, [Validators.required, Validators.min(this.court.price)]),
+             email: [this.loggedInUser.email, [Validators.email, Validators.required]]
+           });
+        } 
+        
+        
+        else {
+          this.stripeForm = this.fb.group({
+            name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
+            amount: new FormControl({value: 0, disabled: true}, [Validators.required, Validators.min(this.court.price)]),
+            email: ['', [Validators.email, Validators.required]]
+          });
+        }
+        
+        
     })
 
     //if role is admin, load regular users
@@ -104,8 +120,6 @@ export class CourtComponent implements OnInit {
     this.rxStompService.watch('/scheduler/reservation-event').subscribe((message: Message) => {
       console.log("iz /scheduler/reservation-event: " + message.body);
         var event = JSON.parse(message.body)
-        console.log(event)
-        console.log("courtID: " + event['courtId']);
         if (this.court.courtId === event['courtId']){
           this.recentlyMadeTimeslots = event['reservationDtos'];
           console.log(this.recentlyMadeTimeslots)
@@ -119,6 +133,7 @@ export class CourtComponent implements OnInit {
 
   public onUserSelected(selectedUser){
     this.selectedUser = selectedUser;
+    this.stripeForm.controls['email'].setValue(this.selectedUser.email)
   }
 
   // Show a spinner on payment submission
@@ -143,7 +158,7 @@ export class CourtComponent implements OnInit {
 
   private createPaymentIntent(amount: number): Observable<any> {
     return this.http.post<any>(
-      `http://localhost:8080/stripe/create-payment-intent`,
+      `http://localhost:9001/stripe/create-payment-intent`,
       { amount : amount }
     );
   }
@@ -154,9 +169,7 @@ export class CourtComponent implements OnInit {
     if (this.timeslots.length == 0) return;
     this.timeslots.splice(index, 1);
     this.stripeForm.controls['amount'].setValue(this.timeslots.length * this.court.price)
-    // if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5)
-    // else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value - 10)
-    // else if (this.timeslots.length == 0) this.stripeForm.controls['amount'].setValue(0)
+
   }
 
   public addTimeslot(){
@@ -166,12 +179,8 @@ export class CourtComponent implements OnInit {
       return;
     }  
     this.resetPaymentIntent()
-
     this.timeslots.push(Builder(Timeslot).start(this.startDate.getTime().toString()).end(this.endDate.getTime().toString()).build())
-    // if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5);
-    // else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value + 10);
     this.stripeForm.controls['amount'].setValue(this.timeslots.length * this.court.price)
-
   }
   
   public resetPaymentIntent(){
@@ -206,7 +215,7 @@ export class CourtComponent implements OnInit {
     var request = Builder(ReservationRequest)
     .courtId(this.court.courtId).paymentMethod('CASH')
     .total(this.stripeForm.controls['amount'].value)
-    .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser['id'] : this.loggedInUserId)
+    .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser['id'] : this.loggedInUser['id'])
     .build();
 
     this.courtService.makeReservations(request).subscribe(response => {

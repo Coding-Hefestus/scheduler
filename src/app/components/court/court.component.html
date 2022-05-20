@@ -2,7 +2,7 @@
     <div class="row"> 
       <div class="col-sm col-lg">
         <div class="card h-100">
-          <img *ngIf="court != null && court.url != null" [src]="court['url']" class="card-img-top" alt="...">
+          <!-- <img *ngIf="court != null && court.url != null" [src]="court['url']" class="card-img-top" alt="..."> -->
           <div class="card-body">
             <h5 *ngIf="court != null && court.name != null" class="card-title">{{court['name']}}</h5>
             <div class="card-header">
@@ -17,6 +17,7 @@
               <small class="text-muted">Covered</small>
             </div>
             <p *ngIf="court != null && court.covered != null" class="card-text">{{court['covered'] === true ? 'Da' : 'Ne'}} </p>
+            <img *ngIf="court != null && court.url != null" [src]="court['url']" class="card-img-top" alt="...">
           </div>
           
         </div>
@@ -50,7 +51,8 @@
 
       </div>
 
-      <div class="col-sm col-lg">
+      <div *ngIf="userRole == 'ADMIN' || userRole == 'USER'" class="col-sm col-lg">
+      
           <p style="margin-top: 30px;">Please select timeslots:</p>
             <div>
                 <label for="start">Select start:</label>
@@ -65,8 +67,8 @@
               <button (click)="addTimeslot()">Add timeslot</button>
             </div>
     
-            <p style="margin-top: 30px;">Select user for reservation (optional):</p>
-            <div *ngIf="users != null">
+            <p  style="margin-top: 30px;">Select user for reservation (optional):</p>
+            <div  *ngIf="users != null">
               
               <select [ngModel]="selectedUser" (ngModelChange)="onUserSelected($event)" name="userslist">
                 <!-- <option selected="selected">No selected user</option> -->
@@ -146,7 +148,7 @@
                     </ngx-stripe-payment>
                 
                     <div style="margin-bottom: 30px;"></div>
-                    <button [disabled]="timeslots.length <= 0 || stripeForm.invalid"  id="paymentButton" (click)="payByCard()">Book reservations and pay
+                    <button [disabled]="timeslots.length <= 0 || (userRole == 'ADMIN' && selectedUser != null) || stripeForm.invalid"  id="paymentButton" (click)="payByCard()">Book reservations and pay
                       <div class="spinner hidden" id="spinner"></div>
                     </button>
                   </ng-container>
@@ -164,7 +166,7 @@
              </form>
       </div>
 
-      <div class="col-sm col-lg">
+      <div *ngIf="userRole == 'ADMIN' || userRole == 'USER'" class="col-sm col-lg">
         <p *ngIf="court">Selected timeslots reservations for Court {{court['name']}}</p>
          <table class="table table-striped">
            <thead>
