@@ -42,7 +42,7 @@ export class CourtComponent implements OnInit {
   public loggedInUserId = 2;
 
   //dummy amount for pricing for single Reservation; every other Reservation added is incremented by 10; This sholud be taken from 'gui-config-service' 
-  public amount = 0;
+  //public amount = 0;
 
   //helper variables
   public paymentType: string;
@@ -81,17 +81,17 @@ export class CourtComponent implements OnInit {
     //default payment type
     this.paymentType = 'cash';
 
-    //initialize form for user's data
-    this.stripeForm = this.fb.group({
-      name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
-      amount: new FormControl({value: this.amount, disabled: true}, [Validators.required, Validators.min(5)]),
-      email: [this.loggedInUserEmail, [Validators.email, Validators.required]]
-    });
-
     //init Court's data
     var courtId = this.activatedRoute.snapshot.queryParamMap.get('court')
     this.courtService.fetchCourtData(courtId).subscribe(court => {
         this.court = court;
+
+         //initialize form for user's data
+        this.stripeForm = this.fb.group({
+          name: [this.loggedInUser, [Validators.required, Validators.minLength(3)]],
+          amount: new FormControl({value: 0, disabled: true}, [Validators.required, Validators.min(this.court.price)]),
+          email: [this.loggedInUserEmail, [Validators.email, Validators.required]]
+        });
     })
 
     //if role is admin, load regular users
@@ -104,9 +104,14 @@ export class CourtComponent implements OnInit {
     this.rxStompService.watch('/scheduler/reservation-event').subscribe((message: Message) => {
       console.log("iz /scheduler/reservation-event: " + message.body);
         var event = JSON.parse(message.body)
-        this.recentlyMadeTimeslots = event['reservationDtos'];
-        console.log(this.recentlyMadeTimeslots)
-        this.recentlyMadeReservationUser = event['username'];
+        console.log(event)
+        console.log("courtID: " + event['courtId']);
+        if (this.court.courtId === event['courtId']){
+          this.recentlyMadeTimeslots = event['reservationDtos'];
+          console.log(this.recentlyMadeTimeslots)
+          this.recentlyMadeReservationUser = event['username'];
+        }
+       
     });
     
     
@@ -148,9 +153,10 @@ export class CourtComponent implements OnInit {
     this.resetPaymentIntent()
     if (this.timeslots.length == 0) return;
     this.timeslots.splice(index, 1);
-    if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5)
-    else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value - 10)
-    else if (this.timeslots.length == 0) this.stripeForm.controls['amount'].setValue(0)
+    this.stripeForm.controls['amount'].setValue(this.timeslots.length * this.court.price)
+    // if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5)
+    // else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value - 10)
+    // else if (this.timeslots.length == 0) this.stripeForm.controls['amount'].setValue(0)
   }
 
   public addTimeslot(){
@@ -162,8 +168,9 @@ export class CourtComponent implements OnInit {
     this.resetPaymentIntent()
 
     this.timeslots.push(Builder(Timeslot).start(this.startDate.getTime().toString()).end(this.endDate.getTime().toString()).build())
-    if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5);
-    else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value + 10);
+    // if (this.timeslots.length == 1) this.stripeForm.controls['amount'].setValue(5);
+    // else if (this.timeslots.length > 1) this.stripeForm.controls['amount'].setValue(this.stripeForm.controls['amount'].value + 10);
+    this.stripeForm.controls['amount'].setValue(this.timeslots.length * this.court.price)
 
   }
   
@@ -198,6 +205,7 @@ export class CourtComponent implements OnInit {
   public payByCash(){
     var request = Builder(ReservationRequest)
     .courtId(this.court.courtId).paymentMethod('CASH')
+    .total(this.stripeForm.controls['amount'].value)
     .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser['id'] : this.loggedInUserId)
     .build();
 
@@ -231,7 +239,6 @@ export class CourtComponent implements OnInit {
             // Show error to your customer (e.g., insufficient funds, card was declined)
             this.outcomeText = 'Payment failed! Reason: ' + result.error.message + ' Click here to reload page.'
             this.errorButton = true; this.successButton = false;
-            //this.resetPaymentIntent();
             this.paymentIntentExists = true;
             this.elementsOptions = {locale: 'en'}
            
@@ -259,6 +266,7 @@ export class CourtComponent implements OnInit {
   public payByCard(){
     var request = Builder(ReservationRequest)
     .paymentIntent(this.elementsOptions.clientSecret)
+    .total(this.stripeForm.controls['amount'].value)
     .courtId(this.court.courtId).paymentMethod('CARD')
     .reservationDtos(this.timeslots).user(this.selectedUser != null ? this.selectedUser.id : 2).build();
 

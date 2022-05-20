@@ -91,7 +91,7 @@
            
 
 
-            <form [formGroup]="stripeForm" style="margin-top: 30px;">
+            <form *ngIf="stripeForm" [formGroup]="stripeForm" style="margin-top: 30px;">
               <div class="form-group">
                 <label for="name">First and last name</label>
                 <input type="name" class="form-control"  formControlName="name" id="name" aria-describedby="nameHelp" placeholder="Enter your first and last name">

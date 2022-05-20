@@ -6,18 +6,14 @@
       </a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <!-- hide if no logged-in user -->
-            <a class="nav-link active"  (click)="notifyUserComponent()" [routerLink]="['/profile', userId]">Profile</a>
+          <li *ngIf="role == 'ADMIN' || role == 'USER'" class="nav-item">
+            <a class="nav-link active"  (click)="notifyUserComponent()" [routerLink]="['/profile', user.id]">Profile</a>
           </li>
-          <li class="nav-item">
-            <!-- hide if no logged-in user TODO -->
+          <li *ngIf="role == 'ADMIN' || role == 'USER'" class="nav-item">
             <a class="nav-link active" [routerLink]="['/reservations']">Reservations</a>
           </li>
 
-          <li class="nav-item">
-            <!-- hide if no logged-in user TODO -->
-            <!-- <a class="nav-link active" [routerLink]="['/court-management']">Court management</a> -->
+          <li *ngIf="role == 'ADMIN'" class="nav-item">
             <div ngbDropdown class="d-inline-block">
               <button type="button" class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Court management</button>
               <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
@@ -28,17 +24,32 @@
             </div>
           </li>
         </ul>
-        <form class="d-flex">
-            <!-- If user is loged in (jwt from local storage), hide 'Register' button -->
-          <button class="btn btn-primary"  style="margin-left: 5px;" >Login</button>
+        <form *ngIf="role == '' " class="d-flex">
+            <!-- If user is loged in (jwt from session storage), hide 'Login' button -->
+          <button class="btn btn-primary"  style="margin-left: 5px;" (click)="openUserComponentInLoginMode(contentLogin)">Login</button>
 
-          <!-- If user is loged in (jwt from local storage), hide 'Register' button -->
+          <!-- If user is loged in (jwt from session storage), hide 'Register' button -->
           <button class="btn btn-primary" type="submit" style="margin-left: 5px;" (click)="openUserComponentInRegisterMode(contentRegister)">Register</button>
           
+        </form>
+        <form *ngIf="role == 'ADMIN' || role == 'USER'" class="d-flex">
+          <!-- logout-->
+          <button class="btn btn-primary"  style="margin-left: 5px;" (click)="logout()">Logout</button>
+
         </form>
       </div>
     </div>
 </nav>
+
+<ng-template #contentLogin let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title-register">Login here</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <app-user></app-user>
+  </div>
+</ng-template>
 
 
 <ng-template #contentRegister let-modal>
@@ -49,8 +60,5 @@
   <div class="modal-body">
     <app-user></app-user>
   </div>
-  <!-- <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Login</button>
-  </div> -->
 </ng-template>
 

@@ -165,3 +165,32 @@
   </div>
 
 
+  <div *ngIf="mode == 'login'">
+    <div class="container">
+      <div class="row">
+          <div class="form-inline justify-content-center">
+            <form *ngIf="userForm" [formGroup]="userForm"  class="row g-3 needs-validation" novalidate>
+
+              <div class="col-md-4">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" formControlName="username" id="username" aria-describedby="inputGroupPrepend" required>
+              </div>
+  
+              <div class="col-md-4">
+                <label for="lozinka" class="form-label">Password</label>
+                <input type="password" class="form-control" formControlName="password" id="lozinka"  aria-describedby="inputGroupPrepend" required>
+              </div>
+
+              <div class="col-12">
+                <button class="btn btn-primary" (click)="submitFormLogin()" [disabled]="userForm.invalid || !userForm.dirty  || disableRegister" type="submit">Login</button>
+              </div>
+              
+              
+            </form>
+          </div>
+      </div>
+    </div>
+
+  </div>
+
+

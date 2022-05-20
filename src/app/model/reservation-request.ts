@@ -6,5 +6,6 @@ export class ReservationRequest{
     paymentIntent!: string
     courtId!: number
     paymentMethod!: string
+    total!: number
     reservationDtos!: Timeslot[]
 }

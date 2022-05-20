@@ -8,7 +8,7 @@ import { User } from '../model/user';
 })
 export class UserService {
 
-  private readonly API = 'http://localhost:8081/api/user-service';
+  private readonly API = 'http://localhost:9001/api/user-service'
 
   constructor(private http: HttpClient) { }
 
@@ -64,6 +64,22 @@ export class UserService {
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     return this.http.post(this.API + '/register', user, { headers })
+    .pipe(map((res: any) => {
+      return res;
+    }), catchError(error => {
+      if (error.status === 400) {
+        return null;
+      }
+      else {
+        return null;
+      }
+    }));
+  };
+
+  public login(user: User) : Observable<any> { //LoginRespons
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.http.post(this.API + '/login', user, { headers })
     .pipe(map((res: any) => {
       return res;
     }), catchError(error => {

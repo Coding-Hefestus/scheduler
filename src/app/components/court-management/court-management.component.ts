@@ -5,6 +5,7 @@ import { Court } from 'src/app/model/court';
 import { Mode } from 'src/app/model/mode';
 import { CourtService } from 'src/app/services/court.service';
 import { PassingDataService } from 'src/app/services/passing-data.service';
+import { TokenStorageService } from 'src/app/services/token-storag.service';
 import { Validator } from 'src/app/utils/validator';
 
 @Component({
@@ -23,9 +24,11 @@ export class CourtManagementComponent implements OnInit {
   public disableId: true;
   public selectedUrl: string;
 
-  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private courtService : CourtService) { }
+  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private courtService : CourtService, private tokenStorageService : TokenStorageService) { }
 
   ngOnInit(): void {
+
+  
 
     this.passingDataService.currentMode.subscribe(currentMode => {
       if (Mode.REGISTER == currentMode){
@@ -40,18 +43,10 @@ export class CourtManagementComponent implements OnInit {
   }
 
   public onCourtSelected(selectedCourt){
-    // this.selectedCourt = selectedCourt;
-    // console.log(JSON.stringify( this.selectedCourt))
-
-    //console.log(JSON.stringify(selectedCourt))
-
     this.courtService.fetchCourtData(selectedCourt.id).subscribe(c => {
       this.selectedCourt = c;
       this.initEditMode();
     });
-
-
-
     
   }
 
@@ -126,17 +121,15 @@ export class CourtManagementComponent implements OnInit {
     this.selectedCourt.type = this.courtForm.get('type').value;
     this.selectedCourt.dimension = this.courtForm.get('dimension').value;
     this.selectedCourt.name = this.courtForm.get('name').value;
+    this.selectedCourt.price = this.courtForm.get('price').value;
 
     var fd = new FormData();
-    // fd.append('file', this.selectedFile, this.selectedFile.name);
     if (this.selectedFile){
       fd.append('file', this.selectedFile, this.selectedFile.name);
     } else {
       fd.append('file',null);
     }
 
-  
-    
     fd.append("court", JSON.stringify(this.selectedCourt))
 
     this.courtService.editCourt(fd).subscribe(data => {
@@ -153,8 +146,6 @@ export class CourtManagementComponent implements OnInit {
     this.courtService.deactivateCourt(this.selectedCourt.courtId).subscribe(data => {
       alert("Court deactivated");
       this.router.navigate(["/tennis-scheduler"]);
-      
-
     })
   }
 
@@ -185,6 +176,7 @@ export class CourtManagementComponent implements OnInit {
       type:      [this.selectedCourt.type,     [ Validators.required]],
       dimension: [this.selectedCourt.dimension,[ Validators.required,      Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
       name:      [this.selectedCourt.name,     [ Validators.required]],
+      price:     [this.selectedCourt.price,     [ Validators.required, Validators.min(1)]],
     });
   
   }
@@ -194,7 +186,8 @@ export class CourtManagementComponent implements OnInit {
       covered: [{'type': 1}, [Validators.required]],
       type:      ['',     [ Validators.required]],
       dimension: ['',     [ Validators.required,      Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      name:      ['',     [ Validators.required]]
+      name:      ['',     [ Validators.required]],
+      price:     ['',     [ Validators.required, Validators.min(1)]],
     });
   }
 

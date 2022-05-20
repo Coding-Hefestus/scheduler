@@ -5,6 +5,7 @@ export class Court{
     name!: String
     url!: string
     dimension!: string
+    price!: number
     type: string
     covered: boolean
     reservationCourtInfos!: Reservations[]

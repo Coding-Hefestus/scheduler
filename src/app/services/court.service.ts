@@ -12,14 +12,14 @@ import { ReservationByCourtAndUser } from '../model/reservationByCourtAndUser';
 })
 export class CourtService {
 
-  private readonly API = 'http://localhost:8080/api/scheduler-service';
+  private readonly API = 'http://localhost:9001/api/scheduler-service'
 
   constructor(private http: HttpClient) { }
 
   public fetchCourtInfo() : Observable<Court[]> {
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-    return this.http.get(this.API + '/courts-info', { headers })
+    return this.http.get(this.API +'/courts-info', { headers })
     .pipe(map((res: any) => {
       return res;
     }), catchError(error => {

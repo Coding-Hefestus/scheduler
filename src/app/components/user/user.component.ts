@@ -4,8 +4,11 @@ import { Router } from '@angular/router';
 import { Mode } from 'src/app/model/mode';
 import { User } from 'src/app/model/user';
 import { PassingDataService } from 'src/app/services/passing-data.service';
+import { TokenStorageService } from 'src/app/services/token-storag.service';
 import { UserService } from 'src/app/services/user.service';
 import { Validator } from 'src/app/utils/validator';
+//import * as jwt_decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-user',
@@ -19,7 +22,7 @@ export class UserComponent implements OnInit {
   public mode: string;
   public disableRegister: boolean;
 
-  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private userService: UserService) { }
+  constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private userService: UserService, private tokenStorage : TokenStorageService) { }
 
   ngOnInit(): void {
     this.passingDataService.currentMode.subscribe(currentMode => {
@@ -39,7 +42,9 @@ export class UserComponent implements OnInit {
         this.initRegisterMode();
 
       } else if (Mode.LOGIN == currentMode){
-
+        this.mode = 'login';
+        this.user = new User()
+        this.initLoginMode();
       }
 
     });
@@ -57,6 +62,26 @@ export class UserComponent implements OnInit {
         alert("Server error!")
       }
       this.router.navigate(["/tennis-scheduler"]);
+    })
+  }
+
+  public submitFormLogin(){
+    this.user.password = this.userForm.get('password').value;
+    this.user.username = this.userForm.get('username').value;
+    this.userService.login(this.user).subscribe(res => {
+        console.log(res)
+        if(res['jwt']){
+          atob
+          var decodedUser = JSON.parse(window.atob(res['jwt'].split('.')[1]));
+          this.tokenStorage.saveUser(decodedUser);
+          this.tokenStorage.saveToken(res['jwt']);
+          this.passingDataService.triggerLoginEvent();
+          this.router.navigate(['/tennis-scheduler']);
+        } else{
+          alert("Incorrect username or password.")
+        }
+
+      
     })
   }
 
@@ -95,6 +120,12 @@ export class UserComponent implements OnInit {
       password:  [this.user['password'],  [ Validators.required,     Validators.minLength(1), Validator.cannotContainWhitespaceOnly]],
       username:  [this.user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
       role:      [this.user['role'],      [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
+    });
+  }
+  private initLoginMode(){
+    this.userForm = this.fb.group({
+      password:  [this.user['password'],  [ Validators.required, Validator.cannotContainWhitespaceOnly]],
+      username:  [this.user['username'],  [ Validators.required, Validator.cannotContainWhitespaceOnly]],
     });
   }
 

@@ -35,6 +35,17 @@
               </div> 
 
               <div class="col-md-4">
+                <label for="lozinka" class="form-label">Price:</label>
+                <input type="number" class="form-control" formControlName="price" id="price"  aria-describedby="inputGroupPrepend" required>
+                <small class="text-danger" *ngIf="courtForm.get('price').hasError('required')">
+                  This field is required.
+                </small>
+                <small class="text-danger" *ngIf="courtForm.get('price').hasError('min') ">
+                  Price must be positive number.
+                </small>
+             </div> 
+
+              <div class="col-md-4">
                 <label for="lozinka" class="form-label">Name:</label>
                 <input type="text" class="form-control" formControlName="name" id="name"  aria-describedby="inputGroupPrepend" required>
       
@@ -108,6 +119,17 @@
                         This field is required.
                     </small>
                 </div> 
+
+                <div class="col-md-4">
+                  <label for="lozinka" class="form-label">Price:</label>
+                  <input type="number" class="form-control" formControlName="price" id="price"  aria-describedby="inputGroupPrepend" required>
+                  <small class="text-danger" *ngIf="courtForm.get('price').hasError('required')">
+                    This field is required.
+                  </small>
+                  <small class="text-danger" *ngIf="courtForm.get('price').hasError('min') ">
+                    Price must be positive number.
+                  </small>
+               </div> 
     
                 <div class="col-md-4">
                     <label for="lozinka" class="form-label">Name:</label>
