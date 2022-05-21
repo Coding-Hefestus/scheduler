@@ -9,6 +9,7 @@ import { UserService } from 'src/app/services/user.service';
 import { Validator } from 'src/app/utils/validator';
 //import * as jwt_decode from 'jwt-decode';
 import jwt_decode from 'jwt-decode';
+import { Builder } from 'builder-pattern';
 
 @Component({
   selector: 'app-user',
@@ -18,9 +19,12 @@ import jwt_decode from 'jwt-decode';
 export class UserComponent implements OnInit {
 
   public user: User;
+  public selectedUser: User;
   public userForm: FormGroup;
   public mode: string;
   public disableRegister: boolean;
+  public users: User[] = [];
+  public role = '';
 
   constructor(private passingDataService : PassingDataService, private fb: FormBuilder, private router: Router, private userService: UserService, private tokenStorage : TokenStorageService) { }
 
@@ -29,12 +33,22 @@ export class UserComponent implements OnInit {
       
       if (Mode.EDIT == currentMode){
         this.mode = 'edit';
-        var userId = 1 //make call to local-storage to extract id
-        this.userService.fetchUser(userId).subscribe(user => {
-          this.user = user;
+        var u = this.tokenStorage.getUser()
+        this.role = u.role;
+
+        if (this.role == 'ADMIN'){
+          this.userService.fetchAllRegularUsers().subscribe(users => {
+            this.users = users;
+          })
+        } else {
+          this.userService.fetchUser(u.id).subscribe(user => {
+            this.user = user;
+            this.initEditMode(this.user);
+          })
           
-          this.initEditMode();
-        })
+        }
+        
+        
 
       } else if (Mode.REGISTER == currentMode){
         this.mode = 'register';
@@ -48,6 +62,11 @@ export class UserComponent implements OnInit {
       }
 
     });
+  }
+
+  public onUserSelected(selectedUser){
+    this.user = selectedUser;
+    this.initEditMode(this.user);
   }
 
   public submitFormRegister(){
@@ -86,20 +105,27 @@ export class UserComponent implements OnInit {
   }
 
   public submitFormEdit(){
+
     this.user.firstname = this.userForm.get('firstname').value;
     this.user.lastname = this.userForm.get('lastname').value;
     this.user.password = this.userForm.get('password').value;
     this.user.username = this.userForm.get('username').value;
     this.user.email = this.userForm.get('email').value;
     this.user.role = this.userForm.get('role').value;
-    
+
+
     this.userService.editUser(this.user).subscribe(user => {
-      if (user){
-        alert("You have successfully edited user profile!")
-      } else {
-        alert("Server error!")
-      }
-    })
+        if (user){
+          alert("You have successfully edited user profile!")
+          var user = this.tokenStorage.getUser()
+          if (user.role != 'ADMIN') {
+              var editedUser = Builder(User).email(this.user.email).iat(user.iat).exp(user.exp).id(this.user.id).role(this.user.role).build();
+              this.tokenStorage.saveUser(editedUser);
+          }
+        } else {
+          alert("Server error!")
+        }
+      })
 
   }
 
@@ -111,15 +137,15 @@ export class UserComponent implements OnInit {
     });
   }
 
-  private initEditMode(){
+  private initEditMode(user : User){
     this.userForm = this.fb.group({
-      id:        [this.user['id'],        [ Validators.required]],
-      firstname: [this.user['firstname'], [ Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      lastname:  [this.user['lastname'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      email:     [this.user['email'],     [ Validators.required,     Validators.email]],
-      password:  [this.user['password'],  [ Validators.required,     Validators.minLength(1), Validator.cannotContainWhitespaceOnly]],
-      username:  [this.user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
-      role:      [this.user['role'],      [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
+      id:        [user['id'],        [ Validators.required]],
+      firstname: [user['firstname'], [ Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
+      lastname:  [user['lastname'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
+      email:     [user['email'],     [ Validators.required,     Validators.email]],
+      password:  [user['password'],  [ Validators.required,     Validators.minLength(1), Validator.cannotContainWhitespaceOnly]],
+      username:  [user['username'],  [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]],
+      role:      [user['role'],      [ Validators.required,     Validators.minLength(3), Validator.cannotContainWhitespaceOnly]]
     });
   }
   private initLoginMode(){

@@ -3,6 +3,14 @@
     <div class="container">
       <div class="row">
           <div class="form-inline justify-content-center">
+            <p  style="margin-top: 30px;">Select user for editing:</p>
+            <div  *ngIf="role == 'ADMIN'">
+              
+              <select [ngModel]="selectedUser" (ngModelChange)="onUserSelected($event)" name="userslist">
+                <option [ngValue]="u" *ngFor="let u of users">{{u['username']}}</option>
+
+              </select>
+            </div>
             <form *ngIf="userForm" [formGroup]="userForm"  class="row g-3 needs-validation" novalidate>
               <div class="col-md-4">
                 <label for="id" class="form-label">ID</label>
